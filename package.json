@@ -27,8 +27,11 @@
     "luxon": "^1.26.0",
     "mysql": "^2.18.1",
     "node-telegram-bot-api": "^0.52.0",
+    "pg": "^8.6.0",
     "phc-argon2": "^1.1.0",
     "proxy-addr": "^2.0.6",
+    "psql": "0.0.1",
+    "rand-token": "^1.0.1",
     "reflect-metadata": "^0.1.13",
     "source-map-support": "^0.5.19",
     "ts-node": "^9.1.1"
