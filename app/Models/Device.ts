@@ -37,12 +37,14 @@ export default class Device extends BaseModel {
   public threshold_device: HasOne<typeof ThresholdDevice> 
 
   @hasMany(()=> PressureVolumeDevice, {
-    foreignKey: 'device_code'
+    foreignKey:'device_code',
+    localKey:'device_code'
   })
   public pressure_volume_device: HasMany<typeof PressureVolumeDevice>
 
   @hasMany(()=> VolumeRateDevice, {
-    foreignKey: 'device_code'
+    foreignKey: 'device_code',
+    localKey: 'device_code'
   })
   public volume_rate_device: HasMany<typeof VolumeRateDevice>
   

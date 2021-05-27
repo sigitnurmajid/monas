@@ -19,7 +19,6 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
-import Config from '@ioc:Adonis/Core/Config'
 
 Route.group(()=>{
   Route.post('/register', 'AuthController.register').as('auth.signup')
@@ -27,9 +26,20 @@ Route.group(()=>{
   Route.post('/logout', 'AuthController.logout').as('auth.logout')
 }).prefix('user')
 
-Route.get('/dashboard', ()=>{
-  return Config.get('telegram')
-})
-Route.get('/telegram', 'AuthController.telegram')
+Route.group(()=>{
+  Route.get('/create', 'TokensController.create').as('token.create')
+  Route.get('/index', 'TokensController.index').as('token.index')
+  Route.delete('/delete/:id', 'TokensController.delete').as('token.delete')
+}).prefix('token')
 
-Route.resource('/posts', 'PostsController')
+Route.group(()=> {
+  Route.resource('/device', 'DevicesController').apiOnly()
+  Route.group(()=>{
+    Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
+    Route.get('/pressure-volume/:id', 'PressureVolumeDevicesController.show')
+    Route.post('/volume-rate', 'VolumeRateDevicesController.create')
+    Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
+  }).prefix('/node-data')
+}).prefix('/api')
+
+

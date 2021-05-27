@@ -65,7 +65,6 @@ export default class AuthController {
   public async logout ({request}: HttpContextContract){
     const userId = request.input('userId')
     return Database.from('api_tokens').where('user_id',userId).delete()
-    return 'Response'
   }
 
   public async telegram(){

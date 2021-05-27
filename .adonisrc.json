@@ -20,11 +20,11 @@
   ],
   "providers": [
     "./providers/AppProvider",
+    "./providers/TelegramProvider",
     "@adonisjs/core",
     "@adonisjs/auth",
     "@adonisjs/lucid",
-    "@adonisjs/session",
-    "./providers/TelegramProvider"
+    "@adonisjs/session"
   ],
   "aceProviders": [
     "@adonisjs/repl"
