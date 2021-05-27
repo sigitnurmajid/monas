@@ -32,7 +32,8 @@ export default class Device extends BaseModel {
   public tank_type: string
 
   @hasOne(()=> ThresholdDevice, {
-    foreignKey: 'device_code'
+    foreignKey: 'device_code',
+    localKey: 'device_code'
   })
   public threshold_device: HasOne<typeof ThresholdDevice> 
 
@@ -49,7 +50,8 @@ export default class Device extends BaseModel {
   public volume_rate_device: HasMany<typeof VolumeRateDevice>
   
   @hasMany(()=> Filling, {
-    foreignKey: 'device_code'
+    foreignKey: 'device_code',
+    localKey: 'device_code'
   })
   public filling: HasMany<typeof Filling>
 

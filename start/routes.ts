@@ -34,6 +34,7 @@ Route.group(()=>{
 
 Route.group(()=> {
   Route.resource('/device', 'DevicesController').apiOnly()
+  Route.resource('/threshold-device', 'ThresholdDevicesController').apiOnly()
   Route.group(()=>{
     Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
     Route.get('/pressure-volume/:id', 'PressureVolumeDevicesController.show')
@@ -41,5 +42,3 @@ Route.group(()=> {
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
   }).prefix('/node-data')
 }).prefix('/api')
-
-
