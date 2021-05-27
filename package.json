@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node ace build --production && cd .env ./build",
+    "build": "node ace build --production && cp .env ./build",
     "start": "node server.js",
     "dev": "node ace serve --watch"
   },
