@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, belongsTo, column, BelongsTo } from '@ioc:Adonis/Lucid/Orm'
 import Device from './Device'
-import { BelongsTo } from '@ioc:Adonis/Lucid/Relations'
 
 export default class PressureVolumeDevice extends BaseModel {
   @column({ isPrimary: true })

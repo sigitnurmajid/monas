@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, belongsTo, column, BelongsTo } from '@ioc:Adonis/Lucid/Orm'
 import Device from './Device'
-import { BelongsTo } from '@ioc:Adonis/Lucid/Relations'
 
 export default class VolumeRateDevice extends BaseModel {
 
@@ -16,6 +15,9 @@ export default class VolumeRateDevice extends BaseModel {
 
   @column({})
   public status: string
+
+  @column({})
+  public tank_code: string
 
   @column({})
   public time_device: DateTime

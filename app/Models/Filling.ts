@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import { BelongsTo } from '@ioc:Adonis/Lucid/Relations'
+import { BaseModel, belongsTo, column, BelongsTo } from '@ioc:Adonis/Lucid/Orm'
 import Device from './Device'
 
 export default class Filling extends BaseModel {

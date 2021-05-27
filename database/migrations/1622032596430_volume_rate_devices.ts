@@ -8,6 +8,7 @@ export default class VolumeRateDevices extends BaseSchema {
       table.increments('id')
       table.string('device_code').notNullable().references('devices.device_code')
       table.float('volume_rate_value')
+      table.string('tank_code').notNullable()
       table.dateTime('time_device')
       table.timestamps(true)
     })

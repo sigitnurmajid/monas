@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm'
-import { HasMany, HasOne } from '@ioc:Adonis/Lucid/Relations'
+import { BaseModel, column, hasMany, hasOne, HasMany, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import ThresholdDevice from './ThresholdDevice'
 import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
