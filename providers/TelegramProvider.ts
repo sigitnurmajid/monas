@@ -21,33 +21,27 @@ import { ApplicationContract } from '@ioc:Adonis/Core/Application'
 */
 export default class TelegramProvider {
   public static needsApplication = true
-  constructor (protected application: ApplicationContract) {
-  }
+
+  constructor(protected application: ApplicationContract) { }
 
 
-  public register () {
-  /**
-    * Do not register if not running in "web" environment
-    */
-    if (this.application.environment !== 'web') {
-      return
-    }
+  public register() {
     this.application.container.singleton('Monas/Services/Telegram', () => {
       const config = this.application.container.use('Adonis/Core/Config')
       const Telegram = require('node-telegram-bot-api')
-      return new Telegram(config.get('telegram.token'),{polling : true})
+      return new Telegram(config.get('telegram.token'), { polling: true })
     })
   }
 
-  public async boot () {
+  public async boot() {
 
   }
 
-  public async ready () {
-    // App is ready
+  public async ready() {
+
   }
 
-  public async shutdown () {
+  public async shutdown() {
     const Telegram = this.application.container.use('Monas/Services/Telegram')
     if (Telegram) Telegram.end()
   }
