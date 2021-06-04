@@ -10,7 +10,7 @@ export default class VolumeRateDevicesController {
     const data = new VolumeRateDevice
 
     data.device_code = request.input('device_code')
-    data.volume_rate_value = request.input('volume_rate_value')
+    data.volume_rate_value = request.input('data.volume_rate_value')
     data.time_device = request.input('time_device')
     data.tank_code = request.input('tank_code')
 

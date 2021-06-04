@@ -6,16 +6,16 @@ export default class PressureVolumeDevicesController {
   public async index({ }: HttpContextContract) {
   }
 
-  public async create({ request , response}: HttpContextContract) {
+  public async create({ request, response }: HttpContextContract) {
     const data = new PressureVolumeDevice
 
     data.device_code = request.input('device_code')
-    data.pressure_value = request.input('pressure_value')
-    data.volume_value = request.input('volume_value')
+    data.pressure_value = request.input('data.pressure_value')
+    data.volume_value = request.input('data.volume_value')
     data.time_device =  request.input('time_device')
-    data.status = request.input('status')
+    data.status = request.input('data.status')
 
-    if ((request.input('status') == 'NORMAL') || (request.input('status') == 'LOWER') || (request.input('status') == 'UPPER')) {
+    if ((request.input('data.status') == 'NORMAL') || (request.input('data.status') == 'LOWER') || (request.input('data.status') == 'UPPER')) {
       
       const device = await Device.findBy('device_code', data.device_code)
 
@@ -23,8 +23,10 @@ export default class PressureVolumeDevicesController {
         await device.related('pressure_volume_device').save(data)
         return response.status(200).send('Data Saved')
       } else {
-        return response.status(400)
+        return response.status(400).send('Node not registered')
       }
+    } else {
+      return response.status(400).send('Status not valid')
     }
   }
 
