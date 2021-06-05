@@ -5,8 +5,14 @@ import ThresholdDevice from 'App/Models/ThresholdDevice'
 
 export default class ThresholdDevicesController {
   public async index({ }: HttpContextContract) {
-    const device = await ThresholdDevice.query()
-    return device
+    const data = await Database
+      .from('threshold_devices')
+      .join('devices', 'devices.device_code', '=', 'threshold_devices.device_code')
+      .select('threshold_devices.*')
+      .select('devices.device_name')
+      .orderBy('created_at')
+
+    return data
   }
 
   public async create({ }: HttpContextContract) {
@@ -32,14 +38,20 @@ export default class ThresholdDevicesController {
 
   public async show({ response, params }: HttpContextContract) {
     try {
-      const device = await ThresholdDevice.find(params.id)
+      const device = await Database
+        .from('threshold_devices')
+        .join('devices', 'devices.device_code', '=', 'threshold_devices.device_code')
+        .select('threshold_devices.*')
+        .select('devices.device_name')
+        .where('threshold_devices.id', params.id)
+        .orderBy('created_at')
       if (device) {
-        return device
+        return device[0]
       } else {
         return response.status(401)
       }
     } catch (error) {
-      console.log(error)
+      return response.status(400)
     }
   }
 
