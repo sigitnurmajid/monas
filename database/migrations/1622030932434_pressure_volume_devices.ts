@@ -9,7 +9,7 @@ export default class PressureVolumeDevices extends BaseSchema {
       table.string('device_code').notNullable().references('devices.device_code')
       table.float('pressure_value')
       table.float('volume_value')
-      table.enum('status', ['LOWER','NORMAL','UPPER'])
+      table.enum('status', ['UNDER','OVER','NORMAL','TOOLOW','TOOHIGH','ERROR'])
       table.dateTime('time_device')
       table.timestamps(true)
     })
