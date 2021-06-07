@@ -1,5 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Device from 'App/Models/Device';
+import ThresholdDevice from 'App/Models/ThresholdDevice'
 
 export default class DevicesController {
   public async index({ }: HttpContextContract) {
@@ -20,8 +21,15 @@ export default class DevicesController {
     device.coordinate = request.input('coordinate')
     device.tank_code = request.input('tank_code')
     device.tank_type = request.input('tank_type')
+    
+    const threshold = new ThresholdDevice
+
+    threshold.device_code = request.input('device_code')
+    threshold.up_limit = 0
+    threshold.low_limit = 0
 
     await device.save()
+    await threshold.save()
     return device
 
   }
@@ -52,6 +60,7 @@ export default class DevicesController {
       device.coordinate = request.input('coordinate')
       device.tank_code = request.input('tank_code')
       device.tank_type = request.input('tank_type')
+
       if (await device.save()) {
         return device
       }
