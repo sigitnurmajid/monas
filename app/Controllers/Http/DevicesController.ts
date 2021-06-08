@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Device from 'App/Models/Device';
 import ThresholdDevice from 'App/Models/ThresholdDevice'
+import Node from 'App/Services/Node'
 
 export default class DevicesController {
   public async index({ }: HttpContextContract) {
@@ -11,7 +12,7 @@ export default class DevicesController {
   public async create({ }: HttpContextContract) {
   }
 
-  public async store({ request }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     const device = new Device()
 
     device.device_code = request.input('device_code')
@@ -21,20 +22,27 @@ export default class DevicesController {
     device.coordinate = request.input('coordinate')
     device.tank_code = request.input('tank_code')
     device.tank_type = request.input('tank_type')
-    
+
     const threshold = new ThresholdDevice
 
     threshold.device_code = request.input('device_code')
     threshold.up_limit = 0
     threshold.low_limit = 0
 
-    await device.save()
-    await threshold.save()
+    const setTankProperties = {
+      nodeId : request.input('device_code'),
+      up_limit : 0,
+      low_limit : 0
+    }
+
+    await device.save().then(async () => { await threshold.save().then(async () => { await Node.setTankProperties(setTankProperties) }) })
+      .catch(() => { return response.status(400).send('Failed to register') })
+
     return device
 
   }
 
-  public async show({ params , response}: HttpContextContract) {
+  public async show({ params, response }: HttpContextContract) {
     try {
       const device = await Device.find(params.id)
       if (device) {
@@ -71,7 +79,7 @@ export default class DevicesController {
 
   public async destroy({ params }: HttpContextContract) {
     const device = await Device.query().where('id', params.id).delete()
-    
+
     return device
   }
 }

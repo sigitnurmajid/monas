@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import Device from 'App/Models/Device'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
+import Node from 'App/Services/Node'
 
 export default class ThresholdDevicesController {
   public async index({ }: HttpContextContract) {
@@ -65,10 +66,18 @@ export default class ThresholdDevicesController {
       data.up_limit = request.input('up_limit')
       data.low_limit = request.input('low_limit')
 
-      const device = await Device.findBy('device_code', data.device_code)
+      
+    const setTankProperties = {
+      nodeId : data.device_code,
+      up_limit : data.up_limit,
+      low_limit : data.low_limit
+    }
 
+      const device = await Device.findBy('device_code', data.device_code)
+      
       if (device) {
         await device.related('threshold_device').save(data)
+        await Node.setTankProperties(setTankProperties)
         return 'Data Updated'
       } else {
         return 'error'
