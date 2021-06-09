@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, hasOne, HasMany, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasMany, hasOne, HasMany, HasOne, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
 import ThresholdDevice from './ThresholdDevice'
 import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
 import Filling from './Filling'
+import UsersTelegram from './UsersTelegram'
 
 
 export default class Device extends BaseModel {
@@ -31,30 +32,34 @@ export default class Device extends BaseModel {
   @column({})
   public tank_type: string
 
-  @hasOne(()=> ThresholdDevice, {
+  @hasOne(() => ThresholdDevice, {
     foreignKey: 'device_code',
     localKey: 'device_code'
   })
-  public threshold_device: HasOne<typeof ThresholdDevice> 
+  public threshold_device: HasOne<typeof ThresholdDevice>
 
-  @hasMany(()=> PressureVolumeDevice, {
-    foreignKey:'device_code',
-    localKey:'device_code'
+  @hasMany(() => PressureVolumeDevice, {
+    foreignKey: 'device_code',
+    localKey: 'device_code'
   })
   public pressure_volume_device: HasMany<typeof PressureVolumeDevice>
 
-  @hasMany(()=> VolumeRateDevice, {
+  @hasMany(() => VolumeRateDevice, {
     foreignKey: 'device_code',
     localKey: 'device_code'
   })
   public volume_rate_device: HasMany<typeof VolumeRateDevice>
-  
-  @hasMany(()=> Filling, {
+
+  @hasMany(() => Filling, {
     foreignKey: 'device_code',
     localKey: 'device_code'
   })
   public filling: HasMany<typeof Filling>
 
+  @manyToMany(()=> UsersTelegram, {
+    pivotTable:'users_devices'
+  })
+  public user_telegram: ManyToMany<typeof UsersTelegram>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -5,39 +5,28 @@ import ThresholdDevice from 'App/Models/ThresholdDevice'
 import Node from 'App/Services/Node'
 
 export default class ThresholdDevicesController {
-  public async index({ }: HttpContextContract) {
+  public async index({ response }: HttpContextContract) {
     const data = await Database
       .from('threshold_devices')
       .join('devices', 'devices.device_code', '=', 'threshold_devices.device_code')
       .select('threshold_devices.*')
       .select('devices.device_name')
       .orderBy('created_at')
-
+      .catch(() => { return response.status(400).send({ error: true, message: 'Error while querying' }) })
     return data
   }
 
   public async create({ }: HttpContextContract) {
   }
 
-  public async store({ request }: HttpContextContract) {
-    const data = new ThresholdDevice()
-
-    data.device_code = request.input('device_code')
-    data.up_limit = request.input('up_limit')
-    data.low_limit = request.input('low_limit')
-
-    const device = await Device.findBy('device_code', data.device_code)
-    const count = await Database.from('threshold_devices').count('* as total').where('device_code', data.device_code)
-
-    if (device && (count[0].total == 0)) {
-      await device.related('threshold_device').save(data)
-      return 'Data Saved'
-    } else {
-      return 'error'
-    }
+  public async store({ }: HttpContextContract) {
   }
 
-  public async show({ response, params }: HttpContextContract) {
+  public async show({ }: HttpContextContract) {
+    /*
+
+    THIS CODE NOT USE FOR A WHILE
+
     try {
       const device = await Database
         .from('threshold_devices')
@@ -49,45 +38,62 @@ export default class ThresholdDevicesController {
       if (device) {
         return device[0]
       } else {
-        return response.status(401)
+        return response.status(400)
       }
     } catch (error) {
       return response.status(400)
     }
+
+
+    */
   }
 
   public async edit({ }: HttpContextContract) {
   }
 
-  public async update({ request, params }: HttpContextContract) {
+  public async update({ request, params, response }: HttpContextContract) {
     const data = await ThresholdDevice.find(params.id);
     if (data) {
-      data.device_code = request.input('device_code')
+      // data.up_limit = request.input('device_code')
       data.up_limit = request.input('up_limit')
       data.low_limit = request.input('low_limit')
 
-      
-    const setTankProperties = {
-      nodeId : data.device_code,
-      up_limit : data.up_limit,
-      low_limit : data.low_limit
-    }
+      const setTankProperties = {
+        nodeId: data.device_code,
+        up_limit: data.up_limit,
+        low_limit: data.low_limit
+      }
 
       const device = await Device.findBy('device_code', data.device_code)
-      
+
       if (device) {
-        await device.related('threshold_device').save(data)
         await Node.setTankProperties(setTankProperties)
-        return 'Data Updated'
+          .then(async () => {
+            await device.related('threshold_device').save(data).catch(() => {
+              return response.status(400).send({ error: true, message: 'Failed save data threshold' })
+            })
+            return response.status(400).send({ error: false, message: 'Operation success' })
+          })
+          .catch((e) => {
+            if (e.message == 'NODE_NOT_RESPOND') {
+              return response.status(400).send({ error: true, message: 'Device did not respond' })
+            }
+          })
       } else {
-        return 'error'
+        return response.status(400).send({ error: true, message: 'Relation not ok' })
       }
+    } else {
+      return response.status(400).send({ error: true, message: 'Id cannot found' })
     }
   }
 
-  public async destroy({ params }: HttpContextContract) {
+  public async destroy({ params, response }: HttpContextContract) {
     const device = await ThresholdDevice.query().where('id', params.id).delete()
 
-    return device
+    if (device) {
+      return response.status(200).send({ error: false, message: 'Data has been deleted' })
+    } else {
+      return response.status(400).send({ error: true, message: 'Error while deleting data' })
+    }
   }
 }

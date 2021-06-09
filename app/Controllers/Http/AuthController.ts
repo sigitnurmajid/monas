@@ -2,7 +2,6 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import User from 'App/Models/Users'
 import Database from '@ioc:Adonis/Lucid/Database'
-import Telegram from 'App/Services/telegram'
 
 export default class AuthController {
   public async register ({ request , auth, response}: HttpContextContract) {
@@ -68,8 +67,5 @@ export default class AuthController {
   }
 
   public async telegram(){
-    const telegram = new Telegram()
-    await telegram.sendMessage()
-    return 'Message Sent'
   }
 }

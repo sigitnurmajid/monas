@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import Device from './Device'
 
 export default class UsersTelegram extends BaseModel {
 
@@ -16,7 +17,12 @@ export default class UsersTelegram extends BaseModel {
   public role: string
 
   @column()
-  public token_user: string
+  public token: string
+
+  @manyToMany(()=>Device, {
+    pivotTable: 'users_devices'
+  })
+  public devices: ManyToMany<typeof Device>
   
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

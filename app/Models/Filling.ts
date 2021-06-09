@@ -22,7 +22,8 @@ export default class Filling extends BaseModel {
   public time_device: DateTime
 
   @belongsTo(() => Device, {
-    foreignKey: 'device_code'
+    foreignKey: 'device_code',
+    localKey: 'device_code'
   })
   public device: BelongsTo<typeof Device>
 

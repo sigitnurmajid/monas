@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
-import UsersTelegram from 'App/Models/UsersTelegram'
+import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 export default class TokenUserTelegram extends BaseModel {
   @column({ isPrimary: true })
@@ -9,10 +8,8 @@ export default class TokenUserTelegram extends BaseModel {
   @column()
   public token: string
 
-  @hasOne(() => UsersTelegram, {
-    foreignKey: 'token_user'
-  })
-  public userTelegram: HasOne<typeof UsersTelegram>
+  @column()
+  public status: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -4,8 +4,12 @@ import ThresholdDevice from 'App/Models/ThresholdDevice'
 import Node from 'App/Services/Node'
 
 export default class DevicesController {
-  public async index({ }: HttpContextContract) {
+  public async index({ response }: HttpContextContract) {
     const device = await Device.query()
+      .catch(() => {
+        return response.status(400).send({ error: true, message: 'Error while querying' })
+      })
+
     return device
   }
 
@@ -30,28 +34,42 @@ export default class DevicesController {
     threshold.low_limit = 0
 
     const setTankProperties = {
-      nodeId : request.input('device_code'),
-      up_limit : 0,
-      low_limit : 0
+      nodeId: request.input('device_code'),
+      up_limit: 0,
+      low_limit: 0
     }
 
-    await device.save().then(async () => { await threshold.save().then(async () => { await Node.setTankProperties(setTankProperties) }) })
-      .catch(() => { return response.status(400).send('Failed to register') })
+    await device.save().then(async () => {
+      await threshold.save()
+        .then(async () => {
+          await Node.setTankProperties(setTankProperties)
+            .catch((e) => {
+              if (e.message == 'NODE_NOT_RESPOND') {
+                return response.status(400).send({ error: true, message: 'Device did not respond' })
+              }
+            })
+        })
+        .catch(() => {
+          return response.status(400).send({ error: true, message: 'Failed to save threshold, try another option with API call' })
+        })
+    })
+      .catch(() => {
+        return response.status(400).send({ error: true, message: 'Failed to register' })
+      })
 
     return device
 
   }
 
   public async show({ params, response }: HttpContextContract) {
-    try {
-      const device = await Device.find(params.id)
-      if (device) {
-        return device
-      } else {
-        return response.status(401)
-      }
-    } catch (error) {
-      console.log(error)
+    const device = await Device.find(params.id)
+      .catch(() => {
+        return response.status(400).send({ error: true, message: 'Error while querying' })
+      })
+    if (device) {
+      return device
+    } else {
+      return response.status(400).send({ error: true, message: 'Id did not match' })
     }
   }
 
@@ -59,7 +77,10 @@ export default class DevicesController {
   }
 
   public async update({ params, request, response }: HttpContextContract) {
-    const device = await Device.find(params.id);
+    const device = await Device.find(params.id)
+      .catch(() => {
+        return response.status(400).send({ error: true, message: 'Error while querying' })
+      })
     if (device) {
       device.device_code = request.input('device_code')
       device.device_name = request.input('device_name')
@@ -72,14 +93,19 @@ export default class DevicesController {
       if (await device.save()) {
         return device
       }
-      return response.status(422)
+      return response.status(400).send({ error: true, message: 'Failed to update' })
+    } else {
+      return response.status(400).send({ error: true, message: 'Id did not match' })
     }
-    return response.status(401)
   }
 
-  public async destroy({ params }: HttpContextContract) {
+  public async destroy({ params, response }: HttpContextContract) {
     const device = await Device.query().where('id', params.id).delete()
 
-    return device
+    if (device) {
+      return response.status(200).send({ error: false, message: 'Data has been deleted' })
+    } else {
+      return response.status(400).send({ error: true, message: 'Error while deleting data' })
+    }
   }
 }

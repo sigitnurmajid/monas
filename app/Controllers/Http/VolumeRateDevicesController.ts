@@ -18,17 +18,20 @@ export default class VolumeRateDevicesController {
 
     if (device) {
       await device.related('volume_rate_device').save(data)
-      return response.status(200).send('Data Saved')
+      return response.status(200).send({ error: false, message: 'Data saved to database' })
     } else {
-      return response.status(400)
+      return response.status(400).send({ error: true, message: 'Node Id did not registered' })
     }
   }
 
   public async store({ }: HttpContextContract) {
   }
 
-  public async show({ params }: HttpContextContract) {
+  public async show({ params , response}: HttpContextContract) {
     const data = await VolumeRateDevice.query().limit(params.id).orderBy('created_at', 'desc')
+    .catch(() => {
+      return response.status(400).send({ error: true, message: 'Error while querying' })
+    })
     return data
   }
 

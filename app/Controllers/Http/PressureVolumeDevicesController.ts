@@ -19,9 +19,9 @@ export default class PressureVolumeDevicesController {
 
     if (device) {
       await device.related('pressure_volume_device').save(data)
-      return response.status(200).send('Data Saved')
+      return response.status(200).send({ error: false, message: 'Data saved to database' })
     } else {
-      return response.status(400).send('Node not registered')
+      return response.status(400).send({ error: true, message: 'Node Id did not registered' })
     }
 
   }
@@ -29,8 +29,11 @@ export default class PressureVolumeDevicesController {
   public async store({ }: HttpContextContract) {
   }
 
-  public async show({ params }: HttpContextContract) {
+  public async show({ params, response }: HttpContextContract) {
     const device = await PressureVolumeDevice.query().limit(params.id).orderBy('created_at', 'desc')
+      .catch(() => {
+        return response.status(400).send({ error: true, message: 'Error while querying' })
+      })
     return device
   }
 

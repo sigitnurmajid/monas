@@ -14,5 +14,6 @@ export default class Node {
     })
 
     await axios.post(`https://api.particle.io/v1/devices/${threshold.nodeId}/setTankProperties`, data , { headers: headers })
+    .catch(() => {throw Error ('NODE_NOT_RESPOND')})
   }
 }
