@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import User from 'App/Models/Users'
+import Users from 'App/Models/Users'
 import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class AuthController {
@@ -19,7 +19,7 @@ export default class AuthController {
       schema: validationSchema,
     })
 
-    const user = new User()
+    const user = new Users
     user.email = userDetails.email
     user.password = userDetails.password
     await user.save()
