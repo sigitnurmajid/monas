@@ -8,6 +8,7 @@ export default class UsersTelegrams extends BaseSchema {
       table.increments('id')
       table.string('name').notNullable()
       table.string('chat_id').notNullable().unique()
+      table.string('location').notNullable()
       table.string('token').references('token_user_telegrams.token').onDelete('CASCADE').notNullable()
       table.enum('role', ['maintenance', 'supplier', 'client']) // maintenance for ateri, supplier for atm, client for hospital
       table.timestamps(true)

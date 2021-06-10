@@ -9,7 +9,6 @@ export default class DevicesController {
       .catch(() => {
         return response.status(400).send({ error: true, message: 'Error while querying' })
       })
-
     return device
   }
 
@@ -17,7 +16,8 @@ export default class DevicesController {
   }
 
   public async store({ request, response }: HttpContextContract) {
-    const device = new Device()
+    const device = new Device
+    const node = new Node
 
     device.device_code = request.input('device_code')
     device.device_name = request.input('device_name')
@@ -42,7 +42,10 @@ export default class DevicesController {
     await device.save().then(async () => {
       await threshold.save()
         .then(async () => {
-          await Node.setTankProperties(setTankProperties)
+          await node.setTankProperties(setTankProperties)
+            .then((respond: any) => {
+              if (respond.response == '0') return response.status(400).send({ error: true, message: 'Device respond with bad respond' })
+            })
             .catch((e) => {
               if (e.message == 'NODE_NOT_RESPOND') {
                 return response.status(400).send({ error: true, message: 'Device did not respond' })

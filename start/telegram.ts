@@ -8,9 +8,9 @@ const COMMAND_TEMPLATE1 = 'template1';
 const COMMAND_TEMPLATE2 = 'template2';
 const COMMAND_TEMPLATE3 = 'template3';
 
-async function savedToDatabase(name: any, chatId: any, role: any, token: any, messageTodelete: any) {
+async function savedToDatabase(name: any, chatId: any, role: any, token: any, messageTodelete: any, location: any) {
   const user = new UsersTelegram
-
+  user.location = location
   user.name = name
   user.chat_id = chatId
   user.role = role
@@ -28,6 +28,7 @@ async function savedToDatabase(name: any, chatId: any, role: any, token: any, me
     await Telegram.sendMessage(chatId, 'User registered');
   } catch (e) {
     await Telegram.sendMessage(chatId, 'Failed, please contact admin')
+    console.log(e.message)
   }
 
   Telegram.deleteMessage(chatId, messageTodelete)
@@ -37,6 +38,7 @@ let name: any
 let chatId: any
 let token: any
 let messageTodelete: any
+let location: any
 
 let inline_keyboard = [
   [
@@ -57,6 +59,13 @@ let inline_keyboard = [
 
 Telegram.onText(/\/register/, async (msg) => {
   const { chat: { id } } = msg;
+  const checkUser = await UsersTelegram.findBy('chat_id', id).catch(() => {
+    return Telegram.sendMessage(id, 'Register function is wrong')
+  })
+
+  if (checkUser) {
+    return Telegram.sendMessage(id, 'Your phone has been registered')
+  }
 
   Telegram.sendMessage(id, `Enter your name`, {
     reply_markup: {
@@ -82,30 +91,40 @@ Telegram.onText(/\/register/, async (msg) => {
 
           if (tokenUser.length == 0) return Telegram.sendMessage(chatId, 'Token not availabe or used by other user')
 
-          Telegram.sendMessage(chatId, `Hello ${name} enter your role`, {
+          Telegram.sendMessage(chatId, `Please enter your location`, {
             reply_markup: {
-              inline_keyboard
+              force_reply: true
             }
-          }).then((result) => {
-            messageTodelete = result.message_id
+          }).then(addApiId => {
+            Telegram.onReplyToMessage(addApiId.chat.id, addApiId.message_id, async msg => {
+              location = msg.text
+              Telegram.sendMessage(chatId, `Hello ${name} enter your role`, {
+                reply_markup: {
+                  inline_keyboard
+                }
+              }).then((result) => {
+                messageTodelete = result.message_id
+              })
+            })
           })
         })
       })
     })
-  });
-})
+  })
+});
+
 
 
 Telegram.on('callback_query', query => {
   switch (query.data) {
     case COMMAND_TEMPLATE1:
-      savedToDatabase(name, chatId, 'maintenance', token, messageTodelete)
+      savedToDatabase(name, chatId, 'maintenance', token, messageTodelete, location)
       break;
     case COMMAND_TEMPLATE2:
-      savedToDatabase(name, chatId, 'supplier', token, messageTodelete)
+      savedToDatabase(name, chatId, 'supplier', token, messageTodelete, location)
       break;
     case COMMAND_TEMPLATE3:
-      savedToDatabase(name, chatId, 'client', token, messageTodelete)
+      savedToDatabase(name, chatId, 'client', token, messageTodelete, location)
       break;
   }
 })

@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, hasOne, HasMany, HasOne, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasMany, hasOne, HasMany, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import ThresholdDevice from './ThresholdDevice'
 import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
 import Filling from './Filling'
-import UsersTelegram from './UsersTelegram'
 
 
 export default class Device extends BaseModel {
@@ -55,11 +54,6 @@ export default class Device extends BaseModel {
     localKey: 'device_code'
   })
   public filling: HasMany<typeof Filling>
-
-  @manyToMany(()=> UsersTelegram, {
-    pivotTable:'users_devices'
-  })
-  public user_telegram: ManyToMany<typeof UsersTelegram>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

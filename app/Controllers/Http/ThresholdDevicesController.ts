@@ -52,6 +52,7 @@ export default class ThresholdDevicesController {
   }
 
   public async update({ request, params, response }: HttpContextContract) {
+    const node = new Node
     const data = await ThresholdDevice.find(params.id);
     if (data) {
       // data.up_limit = request.input('device_code')
@@ -67,12 +68,13 @@ export default class ThresholdDevicesController {
       const device = await Device.findBy('device_code', data.device_code)
 
       if (device) {
-        await Node.setTankProperties(setTankProperties)
-          .then(async () => {
+        await node.setTankProperties(setTankProperties)
+          .then(async (respond : any) => {
+            if (respond.response == '0') return response.status(400).send({ error: true, message: 'Device did not respond' })
             await device.related('threshold_device').save(data).catch(() => {
               return response.status(400).send({ error: true, message: 'Failed save data threshold' })
             })
-            return response.status(400).send({ error: false, message: 'Operation success' })
+            return response.status(200).send({ error: false, message: 'Operation success' })
           })
           .catch((e) => {
             if (e.message == 'NODE_NOT_RESPOND') {
