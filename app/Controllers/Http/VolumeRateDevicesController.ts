@@ -45,7 +45,6 @@ export default class VolumeRateDevicesController {
 
     const volumeRate = (-1 * (dataNow.volume - dataLast[0].volume_value) * 3600 / (unixTimeNow -unixTimeLast))
     
-    console.log(`Time now : ${unixTimeNow}, Time last : ${unixTimeLast}, Volume now ${dataNow.volume}, Volume last ${dataLast[0].volume_value} , Equal ${volumeRate}`)
     const volume = new VolumeRateDevice
     
     const device = await Device.findBy('device_code', dataNow.deviceCode)
