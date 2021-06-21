@@ -41,4 +41,5 @@ Route.group(()=> {
     Route.post('/volume-rate', 'VolumeRateDevicesController.create')
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
   }).prefix('/node-data')
+  Route.resource('/status-master-data', 'StatusMasterDataController').apiOnly()
 }).prefix('/api')

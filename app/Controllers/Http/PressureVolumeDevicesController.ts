@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Device from 'App/Models/Device'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
+import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import Node from 'App/Services/Node'
 
 export default class PressureVolumeDevicesController {
@@ -14,13 +15,15 @@ export default class PressureVolumeDevicesController {
     data.device_code = request.input('device_code')
     data.pressure_value = request.input('data.pressure_value')
     data.volume_value = request.input('data.volume_value')
+    data.stability_value = request.input('stability_value')
     data.time_device = request.input('time_device')
     data.status = request.input('data.status')
 
-    if (data.status == 'NORMAL' || data.status == 'UNDER' || data.status == 'OVER' || data.status == 'TOOLOW' || data.status == 'TOOHIGH' || data.status == 'ERROR') {
-
+    const status = await StatusMasterDatum.all()
+    const checkStatus = (statusParam: string) => status.some(({status})=> status == statusParam)
+     
+    if(checkStatus(data.status) || data.status === '-'){
       const device = await Device.findBy('device_code', data.device_code)
-
       if (device) {
         node.sendAlarm(data)
         await device.related('pressure_volume_device').save(data)

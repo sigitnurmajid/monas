@@ -27,7 +27,7 @@ export default class Node {
   }
 
   public async sendAlarm(data: PressureVolumeDevice) {
-    if (data.status !== 'NORMAL') {
+    if (data.status !== '-') {
       const device = await Device.findBy('device_code', data.device_code)
 
       if (device?.location !== undefined) {
@@ -46,14 +46,24 @@ export default class Node {
         const highThreshold = threshold[0].up_limit
         const lowThreshold = threshold[0].low_limit
         
+        let firstMessage : string
+
+        if (data.status === 'NORMAL')
+        {
+          firstMessage = 'NOTIFICATION'
+        } else {
+          firstMessage = 'ALARM'
+        }
+
         user.forEach(async element => {
-          const line1 = `\u{203C} [ALARM] \u{203C}\n\n`
+          const line1 = `\u{26A0} [${firstMessage}] \u{26A0}\n\n`
           const line2 = `Oxygen Level : ${data.status}\n\n`
           const line3 = `Location : ${device.location}\n\n`
-          const line4 = `Current Level : ${data.volume_value}\n\n`
-          const line5 = `High Threshold : ${highThreshold} \n\n`
-          const line6 = `Low Threshold : ${lowThreshold} `
-          const message = line1 + line2 + line3 + line4 + line5 + line6
+          const line4 = `Current Level : ${data.pressure_value} InH2O\n\n`
+          const line5 = `Current Volume : ${data.volume_value} m3\n\n`
+          const line6 = `High Threshold : ${highThreshold} InH2O\n\n`
+          const line7 = `Low Threshold : ${lowThreshold} InH2O`
+          const message = line1 + line2 + line3 + line4 + line5 + line6 + line7
           await Telegram.sendMessage(element.chat_id, message)
         })
       }

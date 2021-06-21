@@ -16,6 +16,9 @@ export default class PressureVolumeDevice extends BaseModel {
   public volume_value: number
 
   @column({})
+  public stability_value: number
+
+  @column({})
   public status: string
 
   @column({})
