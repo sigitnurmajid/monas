@@ -14,9 +14,6 @@ export default class VolumeRateDevice extends BaseModel {
   public volume_rate_value: number
 
   @column({})
-  public status: string
-
-  @column({})
   public tank_code: string
 
   @column({})
