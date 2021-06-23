@@ -10,13 +10,19 @@ export default class Filling extends BaseModel {
   public device_code: string
 
   @column({})
-  public pressure: number
+  public pressure_value: number
 
   @column({})
-  public weight: number
+  public weight_value: number
 
   @column({})
-  public volume: number
+  public volume_value: number
+
+  @column({})
+  public stability_value: number
+
+  @column({})
+  public filling_state : number
 
   @column({})
   public time_device: DateTime

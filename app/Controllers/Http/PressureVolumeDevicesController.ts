@@ -28,7 +28,7 @@ export default class PressureVolumeDevicesController {
     if(checkStatus(data.status) || data.status === '-'){
       const device = await Device.findBy('device_code', data.device_code)
       if (device) {
-        node.sendAlarm(data)
+        node.sendAlarmPressureTelegram(data)
         try {
           await volume.calculateVolume({volume : data.volume_value, deviceCode : data.device_code,  timeDevice : data.time_device})
           await device.related('pressure_volume_device').save(data)

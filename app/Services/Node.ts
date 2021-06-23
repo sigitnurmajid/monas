@@ -1,6 +1,7 @@
 import Database from '@ioc:Adonis/Lucid/Database'
 import Telegram from '@ioc:Monas/Services/Telegram'
 import Device from 'App/Models/Device'
+import Filling from 'App/Models/Filling'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import axios from 'axios'
 import qs from 'querystring'
@@ -26,7 +27,7 @@ export default class Node {
     return respond
   }
 
-  public async sendAlarm(data: PressureVolumeDevice) {
+  public async sendAlarmPressureTelegram(data: PressureVolumeDevice) {
     if (data.status !== '-') {
       const device = await Device.findBy('device_code', data.device_code)
 
@@ -45,11 +46,10 @@ export default class Node {
 
         const highThreshold = threshold[0].up_limit
         const lowThreshold = threshold[0].low_limit
-        
-        let firstMessage : string
 
-        if (data.status === 'NORMAL')
-        {
+        let firstMessage: string
+
+        if (data.status === 'NORMAL') {
           firstMessage = 'NOTIFICATION'
         } else {
           firstMessage = 'ALARM'
@@ -67,6 +67,30 @@ export default class Node {
           await Telegram.sendMessage(element.chat_id, message)
         })
       }
+    }
+  }
+  public async sendAlarmFillingTelegram(data: Filling) {
+    const device = await Device.findBy('device_code', data.device_code)
+
+    if (device?.location !== undefined) {
+      const user = await Database
+        .from('users_telegrams')
+        // .where('location', '=', device.location) // Not yet USE
+        .where('role', '=', 'maintenance')
+        // .orWhere('role', '=', 'supplier') // Not yet USE
+        .select('chat_id')
+
+
+      user.forEach(async element => {
+        const line1 = `\u{26A0} NOTIFICATION \u{26A0}\n\n`
+        const line2 = `Filling Status : ${data.filling_state}\n\n`
+        const line3 = `Location : ${device.location}\n\n`
+        const line4 = `Current Level : ${data.pressure_value} InH2O\n\n`
+        const line5 = `Current Volume : ${data.volume_value} m3\n\n`
+        const line6 = `Current Weight : ${data.weight_value} Kg`
+        const message = line1 + line2 + line3 + line4 + line5 + line6
+        await Telegram.sendMessage(element.chat_id, message)
+      })
     }
   }
 }
