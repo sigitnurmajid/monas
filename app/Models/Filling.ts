@@ -22,7 +22,7 @@ export default class Filling extends BaseModel {
   public stability_value: number
 
   @column({})
-  public filling_state : number
+  public filling_state : string
 
   @column({})
   public time_device: DateTime

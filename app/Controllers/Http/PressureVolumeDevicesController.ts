@@ -30,7 +30,7 @@ export default class PressureVolumeDevicesController {
       if (device) {
         node.sendAlarmPressureTelegram(data)
         try {
-          await volume.calculateVolume({volume : data.volume_value, deviceCode : data.device_code,  timeDevice : data.time_device})
+          if(data.status === '-') await volume.calculateVolume({volume : data.volume_value, deviceCode : data.device_code,  timeDevice : data.time_device})
           await device.related('pressure_volume_device').save(data)
         } catch (error) {
           return response.status(400).send({ error: true, message: `Error while saving data with error ${error.message}` })

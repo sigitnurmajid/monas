@@ -22,7 +22,7 @@ export default class FillingsController {
     const device = await Device.findBy('device_code', data.device_code)
 
     if (device) {
-      node.sendAlarmFillingTelegram(data)
+      if (data.filling_state !== 'ERROR') node.sendAlarmFillingTelegram(data)
       try {
         await device.related('filling').save(data)
       } catch (error) {

@@ -56,14 +56,13 @@ export default class Node {
         }
 
         user.forEach(async element => {
-          const line1 = `\u{26A0} [${firstMessage}] \u{26A0}\n\n`
-          const line2 = `Oxygen Level : ${data.status}\n\n`
-          const line3 = `Location : ${device.location}\n\n`
-          const line4 = `Current Level : ${data.pressure_value} InH2O\n\n`
-          const line5 = `Current Volume : ${data.volume_value} m3\n\n`
-          const line6 = `High Threshold : ${highThreshold} InH2O\n\n`
-          const line7 = `Low Threshold : ${lowThreshold} InH2O`
-          const message = line1 + line2 + line3 + line4 + line5 + line6 + line7
+          const line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
+          const line2 = `Location : ${device.location}\n\n`
+          const line3 = `Current Level : ${data.pressure_value} InH2O\n\n`
+          const line4 = `Current Volume : ${data.volume_value} m3\n\n`
+          const line5 = `High Level Threshold : ${highThreshold} InH2O\n\n`
+          const line6 = `Low Level Threshold : ${lowThreshold} InH2O`
+          const message = line1 + line2 + line3 + line4 + line5 + line6
           await Telegram.sendMessage(element.chat_id, message)
         })
       }
@@ -71,7 +70,7 @@ export default class Node {
   }
   public async sendAlarmFillingTelegram(data: Filling) {
     const device = await Device.findBy('device_code', data.device_code)
-
+    
     if (device?.location !== undefined) {
       const user = await Database
         .from('users_telegrams')
@@ -82,13 +81,12 @@ export default class Node {
 
 
       user.forEach(async element => {
-        const line1 = `\u{26A0} NOTIFICATION \u{26A0}\n\n`
-        const line2 = `Filling Status : ${data.filling_state}\n\n`
-        const line3 = `Location : ${device.location}\n\n`
-        const line4 = `Current Level : ${data.pressure_value} InH2O\n\n`
-        const line5 = `Current Volume : ${data.volume_value} m3\n\n`
-        const line6 = `Current Weight : ${data.weight_value} Kg`
-        const message = line1 + line2 + line3 + line4 + line5 + line6
+        const line1 = `\u{26A0} FILLING ${data.filling_state} \u{26A0}\n\n`
+        const line2 = `Location : ${device.location}\n\n`
+        const line3 = `Current Level : ${data.pressure_value} InH2O\n\n`
+        const line4 = `Current Volume : ${data.volume_value} m3\n\n`
+        const line5 = `Current Weight : ${data.weight_value} Kg`
+        const message = line1 + line2 + line3 + line4 + line5
         await Telegram.sendMessage(element.chat_id, message)
       })
     }
