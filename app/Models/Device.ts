@@ -4,6 +4,7 @@ import ThresholdDevice from './ThresholdDevice'
 import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
 import Filling from './Filling'
+import VolumeUsage from './VolumeUsage'
 
 
 export default class Device extends BaseModel {
@@ -54,6 +55,12 @@ export default class Device extends BaseModel {
     localKey: 'device_code'
   })
   public filling: HasMany<typeof Filling>
+
+  @hasMany(() => VolumeUsage, {
+    foreignKey: 'device_code',
+    localKey: 'device_code'
+  })
+  public volume_usage: HasMany<typeof VolumeUsage>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Device from 'App/Models/Device'
 import Filling from 'App/Models/Filling'
 import Node from 'App/Services/Node'
+import VolumeUsagesController from './VolumeUsagesController'
 
 export default class FillingsController {
   public async index({ }: HttpContextContract) {
@@ -10,6 +11,7 @@ export default class FillingsController {
   public async create({ request, response }: HttpContextContract) {
     const data = new Filling
     const node = new Node
+    const volumeUsage = new VolumeUsagesController
 
     data.device_code = request.input('device_code')
     data.pressure_value = request.input('data.pressure_value')
@@ -24,6 +26,7 @@ export default class FillingsController {
     if (device) {
       if (data.filling_state !== 'ERROR') node.sendAlarmFillingTelegram(data)
       try {
+        if(data.filling_state === 'STARTED') await volumeUsage.calculateVolumeUsage({volume:data.volume_value, deviceCode: data.device_code}, 'FILLING')
         await device.related('filling').save(data)
       } catch (error) {
         return response.status(400).send({ error: true, message: `Error while saving data with error ${error.message}` })

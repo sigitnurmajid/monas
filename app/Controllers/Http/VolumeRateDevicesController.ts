@@ -33,7 +33,7 @@ export default class VolumeRateDevicesController {
   public async destroy({ }: HttpContextContract) {
   }
 
-  public async calculateVolume(dataNow :{volume : number, timeDevice : DateTime, deviceCode : string}) {
+  public async volumeRateCalculate(dataNow :{volume : number, timeDevice : DateTime, deviceCode : string}) {
     const dataLast = await Database
       .from('pressure_volume_devices')
       .orderBy('time_device', 'desc')

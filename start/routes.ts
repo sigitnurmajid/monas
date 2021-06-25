@@ -38,10 +38,10 @@ Route.group(()=> {
   Route.group(()=>{
     Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
     Route.get('/pressure-volume/:id', 'PressureVolumeDevicesController.show')
-    Route.post('/volume-rate', 'VolumeRateDevicesController.create')
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
     Route.post('/filling', 'FillingsController.create')
     Route.get('/filling/:id', 'FillingsController.show')
+    Route.get('/volume-usage/:id', 'VolumeUsagesController.show')
   }).prefix('/node-data')
   Route.resource('/status-master-data', 'StatusMasterDataController').apiOnly()
 }).prefix('/api')

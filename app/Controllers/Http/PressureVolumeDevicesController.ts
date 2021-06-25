@@ -4,6 +4,7 @@ import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import Node from 'App/Services/Node'
 import VolumeRateDevicesController from './VolumeRateDevicesController'
+import VolumeUsagesController from './VolumeUsagesController'
 
 export default class PressureVolumeDevicesController {
   public async index({ }: HttpContextContract) {
@@ -13,7 +14,7 @@ export default class PressureVolumeDevicesController {
     const data = new PressureVolumeDevice
     const node = new Node
     const volume = new VolumeRateDevicesController
-
+    const volumeUsage = new VolumeUsagesController
 
     data.device_code = request.input('device_code')
     data.pressure_value = request.input('data.pressure_value')
@@ -23,16 +24,21 @@ export default class PressureVolumeDevicesController {
     data.status = request.input('data.status')
 
     const status = await StatusMasterDatum.all()
-    const checkStatus = (statusParam: string) => status.some(({status})=> status == statusParam)
-     
-    if(checkStatus(data.status) || data.status === '-'){
+    const checkStatus = (statusParam: string) => status.some(({ status }) => status == statusParam)
+
+    if (checkStatus(data.status) || data.status === '-') {
       const device = await Device.findBy('device_code', data.device_code)
       if (device) {
         node.sendAlarmPressureTelegram(data)
         try {
-          if(data.status === '-') await volume.calculateVolume({volume : data.volume_value, deviceCode : data.device_code,  timeDevice : data.time_device})
+          if (data.status === '-') {
+            await volumeUsage.calculateVolumeUsage({ volume: data.volume_value, deviceCode: data.device_code }, 'PRESSUREVOLUME')
+            await volume.volumeRateCalculate({ volume: data.volume_value, deviceCode: data.device_code, timeDevice: data.time_device })
+          }
+
           await device.related('pressure_volume_device').save(data)
         } catch (error) {
+          console.log(error)
           return response.status(400).send({ error: true, message: `Error while saving data with error ${error.message}` })
         }
         return response.status(200).send({ error: false, message: 'Data saved to database' })
