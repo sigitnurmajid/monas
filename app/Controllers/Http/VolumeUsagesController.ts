@@ -1,7 +1,9 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database';
 import Device from 'App/Models/Device';
-import VolumeUsage from 'App/Models/VolumeUsage';
+import VolumeUsage from 'App/Models/VolumeUsage'
+import Logger from '@ioc:Adonis/Core/Logger'
+
 
 export default class VolumeUsagesController {
   public async index({ }: HttpContextContract) {
@@ -38,6 +40,7 @@ export default class VolumeUsagesController {
       const fillingFinish = await Database
         .from('fillings')
         .where('filling_state', 'FINISHED')
+        .andWhere('device_code','=',dataNow.deviceCode)
         .orderBy('created_at', 'desc')
         .limit(1)
         .select('created_at', 'volume_value')
@@ -45,6 +48,7 @@ export default class VolumeUsagesController {
       const volumeRealtimeCase1 = await Database
         .from('pressure_volume_devices')
         .where('status', '=', '-')
+        .andWhere('device_code','=',dataNow.deviceCode)
         .orderBy('created_at', 'desc')
         .limit(1)
         .select('created_at', 'volume_value')
@@ -63,6 +67,7 @@ export default class VolumeUsagesController {
       const volumeRealtimeCase2 = await Database
         .from('pressure_volume_devices')
         .where('status', '=', '-')
+        .andWhere('device_code','=',dataNow.deviceCode)
         .orderBy('created_at', 'desc')
         .limit(1)
         .select('volume_value')
@@ -84,7 +89,7 @@ export default class VolumeUsagesController {
         await device.related('volume_usage').save(volume)
       }
     } else {
-      console.log(`Volume Usage lower than 0 : ${totalVolume}`)
+      Logger.error(`Volume Usage lower than 0 : ${totalVolume}, data can't be save to database`)
     }
   }
 }

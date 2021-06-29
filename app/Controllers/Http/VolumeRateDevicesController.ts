@@ -36,6 +36,7 @@ export default class VolumeRateDevicesController {
   public async volumeRateCalculate(dataNow :{volume : number, timeDevice : DateTime, deviceCode : string}) {
     const dataLast = await Database
       .from('pressure_volume_devices')
+      .where('device_code','=',dataNow.deviceCode)
       .orderBy('time_device', 'desc')
       .limit(1)
       .select('time_device', 'volume_value')
