@@ -13,6 +13,12 @@ export default class ThresholdDevice extends BaseModel {
 
   @column({})
   public low_limit: number
+
+  @column({})
+  public up_limit_hospital: number
+
+  @column({})
+  public low_limit_hospital: number
   
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

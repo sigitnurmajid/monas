@@ -32,6 +32,8 @@ export default class DevicesController {
     threshold.device_code = request.input('device_code')
     threshold.up_limit = 0
     threshold.low_limit = 0
+    threshold.up_limit_hospital = 0
+    threshold.low_limit_hospital = 0
 
     const setTankProperties = {
       nodeId: request.input('device_code'),

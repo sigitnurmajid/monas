@@ -9,6 +9,8 @@ export default class ThresholdDevices extends BaseSchema {
       table.string('device_code').notNullable().references('devices.device_code').onDelete('CASCADE')
       table.float('up_limit').notNullable()
       table.float('low_limit').notNullable()
+      table.float('up_limit_hostpital').notNullable()
+      table.float('low_limit_hostpital').notNullable()
       table.timestamps(true)
     })
   }

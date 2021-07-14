@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Device from 'App/Models/Device'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
+import ThresholdDevice from 'App/Models/ThresholdDevice'
 import Node from 'App/Services/Node'
 import VolumeRateDevicesController from './VolumeRateDevicesController'
 import VolumeUsagesController from './VolumeUsagesController'
@@ -29,7 +30,15 @@ export default class PressureVolumeDevicesController {
     if (checkStatus(data.status) || data.status === '-') {
       const device = await Device.findBy('device_code', data.device_code)
       if (device) {
-        node.sendAlarmPressureTelegram(data)
+        if (data.status !== '-') node.sendAlarmPressureTelegram(data, 'SUPPLIER')
+        const threshold = await ThresholdDevice.findBy('device_code', data.device_code)
+        
+        if(threshold){
+          if(data.pressure_value < threshold.low_limit_hospital || data.pressure_value > threshold.up_limit_hospital){
+            node.sendAlarmPressureTelegram(data, 'CLIENT')
+          }
+        }
+
         try {
           if (data.status === '-') {
             await volumeUsage.calculateVolumeUsage({ volume: data.volume_value, deviceCode: data.device_code }, 'PRESSUREVOLUME')

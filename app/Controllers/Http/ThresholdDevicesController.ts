@@ -58,6 +58,8 @@ export default class ThresholdDevicesController {
       // data.up_limit = request.input('device_code')
       data.up_limit = request.input('up_limit')
       data.low_limit = request.input('low_limit')
+      data.up_limit_hospital = request.input('up_limit_hospital')
+      data.low_limit_hospital = request.input('low_limit_hospital')
 
       const setTankProperties = {
         nodeId: data.device_code,
@@ -69,7 +71,7 @@ export default class ThresholdDevicesController {
 
       if (device) {
         await node.setTankProperties(setTankProperties)
-          .then(async (respond : any) => {
+          .then(async (respond: any) => {
             if (respond.response == '0') return response.status(400).send({ error: true, message: 'Device did not respond' })
             await device.related('threshold_device').save(data).catch(() => {
               return response.status(400).send({ error: true, message: 'Failed save data threshold' })

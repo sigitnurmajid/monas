@@ -37,6 +37,7 @@ export default class VolumeRateDevicesController {
     const dataLast = await Database
       .from('pressure_volume_devices')
       .where('device_code','=',dataNow.deviceCode)
+      .andWhere('status','=','-')
       .orderBy('time_device', 'desc')
       .limit(1)
       .select('time_device', 'volume_value')

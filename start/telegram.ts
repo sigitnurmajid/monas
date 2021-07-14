@@ -1,8 +1,8 @@
 import Telegram from "@ioc:Monas/Services/Telegram"
-import UsersTelegram from 'App/Models/UsersTelegram'
 import TokenUserTelegram from 'App/Models/TokenUserTelegram'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Database from "@ioc:Adonis/Lucid/Database";
+import UsersTelegram from "App/Models/UsersTelegram";
 
 const COMMAND_TEMPLATE1 = 'template1';
 const COMMAND_TEMPLATE2 = 'template2';
@@ -127,4 +127,29 @@ Telegram.on('callback_query', query => {
       savedToDatabase(name, chatId, 'client', token, messageTodelete, location)
       break;
   }
+})
+
+
+Telegram.onText(/\/telegramfitur/, async (msg) => {
+  const userMaintenance = await UsersTelegram.findBy('chat_id', msg.chat.id.toString())
+
+  if (userMaintenance?.role === 'maintenance') {
+    const status = await Database
+      .from('state_controls')
+      .where('description', '=', 'telegram')
+      .select('status')
+
+    try {
+      await Database
+        .from('state_controls')
+        .where('description', '=', 'telegram')
+        .update({ status: !status[0].status })
+      Telegram.sendMessage(msg.chat.id, `State telegram changed to ${!status[0].status}`)
+    } catch (error) {
+      Telegram.sendMessage(msg.chat.id, 'Failed change state')
+    }
+  } else {
+    Telegram.sendMessage(msg.chat.id, 'You dont have previllage to change this state')
+  }
+
 })
