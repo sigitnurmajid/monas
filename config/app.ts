@@ -180,7 +180,13 @@ export const logger: LoggerConfig = {
   | can have huge impact on performance.
   |
   */
-  prettyPrint: false,
+  prettyPrint: true,
+
+
+
+
+
+  timestamp: 'iso',
 }
 
 /*
