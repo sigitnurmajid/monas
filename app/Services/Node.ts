@@ -47,7 +47,7 @@ export default class Node {
       const highThresholdHospital = threshold[0].up_limit_hospital
       const lowThresholdHospital = threshold[0].low_limit_hospital
 
-      const line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
+      let line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
       const line2 = `\u{1F3E5} Location : ${device.location}\n\n`
       const line3 = `Current Level : ${data.pressure_value} InH2O\n\n`
       const line4 = `Current Volume : ${data.volume_value} m3\n\n`
@@ -65,6 +65,15 @@ export default class Node {
           .where('location', '=', device.location)
           .orWhere('role', '=', 'client')
           .select('*')
+
+        let message_warning : string = ''
+        if(data.pressure_value > highThresholdHospital) {
+          message_warning = 'HIGH'
+        } else if (data.pressure_value < lowThresholdHospital) {
+          message_warning = 'LOW'
+        }
+
+        line1 = `\u{26A0} OXYGEN LEVEL ${message_warning} \u{26A0}\n\n`
 
         const user = userMaintenance.concat(userClient)
         const line5 = `High Level Threshold : ${highThresholdHospital} InH2O\n\n`
