@@ -32,9 +32,9 @@ export default class PressureVolumeDevicesController {
       if (device) {
         if (data.status !== '-') node.sendAlarmPressureTelegram(data, 'SUPPLIER')
         const threshold = await ThresholdDevice.findBy('device_code', data.device_code)
-        
+
         if(threshold){
-          if(data.pressure_value < threshold.low_limit_hospital || data.pressure_value > threshold.up_limit_hospital){
+          if(data.status === '-' && (data.pressure_value < threshold.low_limit_hospital || data.pressure_value > threshold.up_limit_hospital)){
             node.sendAlarmPressureTelegram(data, 'CLIENT')
           }
         }
