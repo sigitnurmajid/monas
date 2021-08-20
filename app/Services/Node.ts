@@ -33,6 +33,16 @@ export default class Node {
   }
 
   public async sendAlarmPressureTelegram(data: PressureVolumeDevice, forWho: string) {
+
+    /**
+     * Query for check feature Telegram
+     */
+
+    const status = await Database
+      .from('state_controls')
+      .where('description', '=', 'telegram')
+      .select('status')
+
     const device = await Device.findBy('device_code', data.device_code)
 
     if (device?.location !== undefined) {
@@ -47,7 +57,7 @@ export default class Node {
       const highThresholdHospital = threshold[0].up_limit_hospital
       const lowThresholdHospital = threshold[0].low_limit_hospital
 
-      const line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
+      let line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
       const line2 = `\u{1F3E5} Location : ${device.location}\n\n`
       const line3 = `Current Level : ${data.pressure_value} InH2O\n\n`
       const line4 = `Current Volume : ${data.volume_value} m3\n\n`
@@ -66,14 +76,35 @@ export default class Node {
           .orWhere('role', '=', 'client')
           .select('*')
 
+        let message_warning: string = ''
+        if (data.pressure_value > highThresholdHospital) {
+          message_warning = 'HIGH'
+        } else if (data.pressure_value < lowThresholdHospital) {
+          message_warning = 'LOW'
+        }
+
+        line1 = `\u{26A0} OXYGEN LEVEL ${message_warning} \u{26A0}\n\n`
+
         const user = userMaintenance.concat(userClient)
         const line5 = `High Level Threshold : ${highThresholdHospital} InH2O\n\n`
         const line6 = `Low Level Threshold : ${lowThresholdHospital} InH2O`
         const message = line1 + line2 + line3 + line4 + line5 + line6
 
-        user.forEach(async element => {
-          await this.sendMessage(element.chat_id, message, `OXYGEN LEVEL ${data.status} for ${element.name} with Role ${element.role}`)
-        })
+        /**
+         * Checking status feature for Telegram, if disable don't sent it to other role except Maintenance
+         */
+
+        if (status[0].status) {
+          user.forEach(async element => {
+            await this.sendMessage(element.chat_id, message, `OXYGEN LEVEL ${data.status} for ${element.name} with Role ${element.role}`)
+          })
+        } else {
+          this.maintenance.forEach(async element => {
+            await Telegram.sendMessage(element.chat_id, `Alarm appears on system but telegram feature still disable, with message : \n\n ${message}`)
+          });
+          Logger.info(`Alarm appears on system but telegram feature still disable`)
+        }
+
       } else if (forWho === 'SUPPLIER') {
         const userSupplier = await Database
           .from('users_telegrams')
@@ -85,9 +116,21 @@ export default class Node {
         const line6 = `Low Level Threshold : ${lowThreshold} InH2O`
         const message = line1 + line2 + line3 + line4 + line5 + line6
 
-        user.forEach(async element => {
-          await this.sendMessage(element.chat_id, message, `OXYGEN LEVEL ${data.status} for ${element.name} with Role ${element.role}`)
-        })
+        /**
+          * Checking status feature for Telegram, if disable don't sent it to other role except Maintenance
+        */
+
+        if (status[0].status) {
+          user.forEach(async element => {
+            await this.sendMessage(element.chat_id, message, `OXYGEN LEVEL ${data.status} for ${element.name} with Role ${element.role}`)
+          })
+        } else {
+          this.maintenance.forEach(async element => {
+            console.log(element)
+            await Telegram.sendMessage(element.chat_id, `Alarm appears on system but telegram feature still disable, with message : \n\n ${message}`)
+          });
+          // Logger.info(`Alarm appears on system but telegram feature still disable`)
+        }
       }
     }
   }
@@ -114,20 +157,8 @@ export default class Node {
     }
   }
 
-  private async sendMessage(chat_id: string, message: string, log: string) {
-    const status = await Database
-    .from('state_controls')
-    .where('description', '=', 'telegram')
-    .select('status')
-
-    if (status[0].status) {
-      await Telegram.sendMessage(chat_id, message)
-      Logger.info(`${log}`)
-    } else {
-      this.maintenance.forEach(async element => {
-        await Telegram.sendMessage(element.chat_id, 'Alarm appears on system but telegram feature still disable')
-      });
-      Logger.info(`Alarm appears on system but telegram feature still disable`)
-    }
+  private async sendMessage(chat_id: string, message: string, log?: string) {
+    await Telegram.sendMessage(chat_id, message)
+    if (log) Logger.info(`${log}`)
   }
 }
