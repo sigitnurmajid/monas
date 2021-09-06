@@ -189,6 +189,6 @@ Telegram.onText(/\/sendbroadcast/, async (msg) => {
       })
     })
   } else {
-    Telegram.sendMessage(msg.chat.id, 'You dont have previllage to brodcast a message')
+    Telegram.sendMessage(msg.chat.id, 'You dont have previllage to broadcast a message')
   }
 })
