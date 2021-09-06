@@ -151,5 +151,44 @@ Telegram.onText(/\/telegramfitur/, async (msg) => {
   } else {
     Telegram.sendMessage(msg.chat.id, 'You dont have previllage to change this state')
   }
+})
 
+Telegram.onText(/\/sendbroadcast/, async (msg) => {
+  const userMaintenance = await UsersTelegram.findBy('chat_id', msg.chat.id.toString())
+
+  if (userMaintenance?.role === 'maintenance') {
+    Telegram.sendMessage(msg.chat.id, 'What\'s your message', {
+      reply_markup: {
+        force_reply: true
+      }
+    }).then(addApiId => {
+      Telegram.onReplyToMessage(addApiId.chat.id, addApiId.message_id, async msg => {
+        const messageToSent = msg.text
+        if (messageToSent) {
+          Telegram.sendMessage(msg.chat.id, `Are you sure to send this message : \n\nType : 'yes' (to proceed) / 'no' (to cancel) \n\n${msg.text}`, {
+            reply_markup: {
+              force_reply: true
+            }
+          }).then(addApiId => {
+            Telegram.onReplyToMessage(addApiId.chat.id, addApiId.message_id, async msg => {
+              if (msg.text === 'yes') {
+                const usersTelegram = await UsersTelegram.all()
+                usersTelegram.forEach(user => {
+                  Telegram.sendMessage(user.chat_id, messageToSent)
+                })
+              } else if (msg.text === 'no'){
+                Telegram.sendMessage(msg.chat.id, 'Broadcast message cancelled')
+              } else {
+                Telegram.sendMessage(msg.chat.id, 'Invalid response')
+              }
+            })
+          })
+        } else {
+          Telegram.sendMessage(msg.chat.id, 'Message invalid')
+        }
+      })
+    })
+  } else {
+    Telegram.sendMessage(msg.chat.id, 'You dont have previllage to brodcast a message')
+  }
 })
