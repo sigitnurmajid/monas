@@ -23,17 +23,18 @@ export default class DevicesController {
     device.device_name = request.input('device_name')
     device.device_type = request.input('device_type')
     device.location = request.input('location')
-    device.coordinate = request.input('coordinate')
     device.tank_code = request.input('tank_code')
     device.tank_type = request.input('tank_type')
+    device.high_limit = request.input('high_limit')
+    device.low_limit = request.input('low_limit')
 
     const threshold = new ThresholdDevice
 
     threshold.device_code = request.input('device_code')
-    threshold.up_limit = 0
-    threshold.low_limit = 0
-    threshold.up_limit_hospital = 0
-    threshold.low_limit_hospital = 0
+    threshold.high_threshold = 0
+    threshold.low_threshold = 0
+    threshold.hospital_high_threshold = 0
+    threshold.hospital_low_threshold = 0
 
     const setTankProperties = {
       nodeId: request.input('device_code'),
@@ -91,9 +92,10 @@ export default class DevicesController {
       device.device_name = request.input('device_name')
       device.device_type = request.input('device_type')
       device.location = request.input('location')
-      device.coordinate = request.input('coordinate')
       device.tank_code = request.input('tank_code')
       device.tank_type = request.input('tank_type')
+      device.high_limit = request.input('high_limit')
+      device.low_limit = request.input('low_limit')
 
       if (await device.save()) {
         return device

@@ -9,17 +9,17 @@ export default class ThresholdDevice extends BaseModel {
   public device_code: string
 
   @column({})
-  public up_limit: number
+  public high_threshold: number
 
   @column({})
-  public low_limit: number
+  public low_threshold: number
 
   @column({})
-  public up_limit_hospital: number
+  public hospital_high_threshold: number
 
   @column({})
-  public low_limit_hospital: number
-  
+  public hospital_low_threshold: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

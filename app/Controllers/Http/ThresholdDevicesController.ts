@@ -56,15 +56,15 @@ export default class ThresholdDevicesController {
     const data = await ThresholdDevice.find(params.id);
     if (data) {
       // data.up_limit = request.input('device_code')
-      data.up_limit = request.input('up_limit')
-      data.low_limit = request.input('low_limit')
-      data.up_limit_hospital = request.input('up_limit_hospital')
-      data.low_limit_hospital = request.input('low_limit_hospital')
+      data.high_threshold = request.input('up_limit')
+      data.low_threshold = request.input('low_limit')
+      data.hospital_high_threshold = request.input('up_limit_hospital')
+      data.hospital_low_threshold = request.input('low_limit_hospital')
 
       const setTankProperties = {
         nodeId: data.device_code,
-        up_limit: data.up_limit,
-        low_limit: data.low_limit
+        up_limit: data.high_threshold,
+        low_limit: data.low_threshold
       }
 
       const device = await Device.findBy('device_code', data.device_code)

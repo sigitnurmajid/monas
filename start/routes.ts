@@ -57,3 +57,10 @@ Route.group(()=> {
   }).prefix('/node-data')
   Route.resource('/status-master-data', 'StatusMasterDataController').apiOnly()
 }).prefix('/api')
+
+
+Route.group(()=>{
+  Route.group(()=>{
+    Route.post('/device-location', 'DevicesLocationsController.create')
+  }).prefix('/node-data')
+}).prefix('/api-v2')

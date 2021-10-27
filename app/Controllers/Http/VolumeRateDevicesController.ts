@@ -42,13 +42,15 @@ export default class VolumeRateDevicesController {
       .limit(1)
       .select('time_device', 'volume_value')
 
+    if (dataLast.length === 0) return
+
     const unixTimeNow = Math.round((new Date(dataNow.timeDevice.toString()).getTime())/1000)
     const unixTimeLast = Math.round((new Date(dataLast[0].time_device).getTime())/1000)
 
     const volumeRate = (-1 * (dataNow.volume - dataLast[0].volume_value) * 3600 / (unixTimeNow -unixTimeLast))
-    
+
     const volume = new VolumeRateDevice
-    
+
     const device = await Device.findBy('device_code', dataNow.deviceCode)
 
     if (device){

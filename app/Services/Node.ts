@@ -43,6 +43,8 @@ export default class Node {
       .where('description', '=', 'telegram')
       .select('status')
 
+    if (status.length === 0) return
+
     const device = await Device.findBy('device_code', data.device_code)
 
     if (device?.location !== undefined) {
@@ -52,10 +54,10 @@ export default class Node {
         .where('device_code', '=', data.device_code)
         .select('*')
 
-      const highThreshold = threshold[0].up_limit
-      const lowThreshold = threshold[0].low_limit
-      const highThresholdHospital = threshold[0].up_limit_hospital
-      const lowThresholdHospital = threshold[0].low_limit_hospital
+      const highThreshold = threshold[0].high_threshold
+      const lowThreshold = threshold[0].low_threshold
+      const highThresholdHospital = threshold[0].hospital_high_threshold
+      const lowThresholdHospital = threshold[0].hospital_low_threshold
 
       let line1 = `\u{26A0} OXYGEN LEVEL ${data.status} \u{26A0}\n\n`
       const line2 = `\u{1F3E5} Location : ${device.location}\n\n`

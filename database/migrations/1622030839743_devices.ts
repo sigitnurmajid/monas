@@ -10,9 +10,10 @@ export default class Devices extends BaseSchema {
       table.string('device_code').unique().notNullable()
       table.string('device_type').notNullable()
       table.string('location').notNullable()
-      table.string('coordinate')
       table.string('tank_code').notNullable()
       table.string('tank_type').notNullable()
+      table.float('high_limit')
+      table.float('low_limit')
       table.timestamps(true)
     })
   }

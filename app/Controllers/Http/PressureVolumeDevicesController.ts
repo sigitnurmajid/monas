@@ -1,4 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import DataCollectionDevice from 'App/Models/DataCollectionDevice'
 import Device from 'App/Models/Device'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
@@ -16,6 +17,7 @@ export default class PressureVolumeDevicesController {
     const node = new Node
     const volume = new VolumeRateDevicesController
     const volumeUsage = new VolumeUsagesController
+    const dataCollection = new DataCollectionDevice
 
     data.device_code = request.input('device_code')
     data.pressure_value = request.input('data.pressure_value')
@@ -23,6 +25,18 @@ export default class PressureVolumeDevicesController {
     data.stability_value = request.input('data.stability_value')
     data.time_device = request.input('time_device')
     data.status = request.input('data.status')
+
+    dataCollection.device_code = request.input('device_code')
+    dataCollection.temperature = request.input('data.temperature')
+    dataCollection.solar_exposure = request.input('data.solar_exposure')
+    dataCollection.humidity = request.input('data.humidity')
+    dataCollection.battery_level = request.input('data.battery_level')
+    dataCollection.status = request.input('data.device_status')
+    dataCollection.firmware_version = request.input('data.firmware_version')
+    dataCollection.device_type = request.input('data.device_type')
+    dataCollection.memory_usage = request.input('data.memory_usage')
+    dataCollection.time_device = request.input('time_device')
+
 
     const status = await StatusMasterDatum.all()
     const checkStatus = (statusParam: string) => status.some(({ status }) => status == statusParam)
@@ -34,7 +48,7 @@ export default class PressureVolumeDevicesController {
         const threshold = await ThresholdDevice.findBy('device_code', data.device_code)
 
         if(threshold){
-          if(data.status === '-' && (data.pressure_value < threshold.low_limit_hospital || data.pressure_value > threshold.up_limit_hospital)){
+          if(data.status === '-' && (data.pressure_value < threshold.hospital_low_threshold || data.pressure_value > threshold.hospital_high_threshold)){
             node.sendAlarmPressureTelegram(data, 'CLIENT')
           }
         }
@@ -46,6 +60,7 @@ export default class PressureVolumeDevicesController {
           }
 
           await device.related('pressure_volume_device').save(data)
+          await device.related('data_collection_device').save(dataCollection)
         } catch (error) {
           console.log(error)
           return response.status(400).send({ error: true, message: `Error while saving data with error ${error.message}` })

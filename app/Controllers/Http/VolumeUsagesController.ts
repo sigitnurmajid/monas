@@ -53,6 +53,8 @@ export default class VolumeUsagesController {
         .limit(1)
         .select('created_at', 'volume_value')
 
+      if(fillingFinish.length === 0 || volumeRealtimeCase1.length === 0) return
+
       let unixTimeFilling: number = 0
       let unixTimeVolumeRealtime: number = 0
       if (fillingFinish.length !== 0) unixTimeFilling = Math.round(new Date(fillingFinish[0].created_at).getTime())
@@ -74,7 +76,7 @@ export default class VolumeUsagesController {
 
       volumeLast = parseFloat(volumeRealtimeCase2[0].volume_value)
     }
-    
+
     const totalVolume = volumeLast - dataNow.volume
     if (totalVolume > 0) {
       const volume = new VolumeUsage

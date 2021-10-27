@@ -7,10 +7,10 @@ export default class ThresholdDevices extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('device_code').notNullable().references('devices.device_code').onDelete('CASCADE')
-      table.float('up_limit').notNullable()
-      table.float('low_limit').notNullable()
-      table.float('up_limit_hostpital').notNullable()
-      table.float('low_limit_hostpital').notNullable()
+      table.float('high_threshold').notNullable()
+      table.float('low_threshold').notNullable()
+      table.float('hospital_high_threshold').notNullable()
+      table.float('hospital_low_threshold').notNullable()
       table.timestamps(true)
     })
   }

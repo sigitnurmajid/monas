@@ -5,6 +5,8 @@ import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
 import Filling from './Filling'
 import VolumeUsage from './VolumeUsage'
+import DevicesLocation from './DevicesLocation'
+import DataCollectionDevice from './DataCollectionDevice'
 
 
 export default class Device extends BaseModel {
@@ -24,13 +26,16 @@ export default class Device extends BaseModel {
   public location: string
 
   @column({})
-  public coordinate: string
-
-  @column({})
   public tank_code: string
 
   @column({})
   public tank_type: string
+
+  @column({})
+  public high_limit: number
+
+  @column({})
+  public low_limit: number
 
   @hasOne(() => ThresholdDevice, {
     foreignKey: 'device_code',
@@ -61,6 +66,18 @@ export default class Device extends BaseModel {
     localKey: 'device_code'
   })
   public volume_usage: HasMany<typeof VolumeUsage>
+
+  @hasMany(() => DevicesLocation, {
+    foreignKey: 'device_code',
+    localKey: 'device_code'
+  })
+  public device_location: HasMany<typeof DevicesLocation>
+
+  @hasMany(() => DataCollectionDevice, {
+    foreignKey: 'device_code',
+    localKey: 'device_code'
+  })
+  public data_collection_device: HasMany<typeof DataCollectionDevice>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
