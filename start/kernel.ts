@@ -42,5 +42,5 @@ Server.middleware.register([
 |
 */
 Server.middleware.registerNamed({
-  // auth: 'App/Middleware/Auth'
+  auth: 'App/Middleware/Auth'
 })

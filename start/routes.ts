@@ -32,17 +32,40 @@ Route.get('health', async ({ response }) => {
     : response.badRequest(report)
 })
 
+/**
+ * User Route
+ */
+
 Route.group(()=>{
   Route.post('/register', 'AuthController.register').as('auth.signup')
   Route.post('/login', 'AuthController.login').as('auth.login')
-  Route.post('/logout', 'AuthController.logout').as('auth.logout')
+  Route.post('/logout', 'AuthController.logout').as('auth.logout').middleware('auth:api')
+  Route.post('/change-password', 'AuthController.changePassword').as('auth.password').middleware('auth:api')
+  Route.post('/reset-password', 'ForgotPasswordsController.store')
+  Route.get('/reset-password/:token/:email', 'ForgotPasswordsController.show')
+  Route.post('/reset-password/reset', 'ForgotPasswordsController.edit')
 }).prefix('user')
+
+Route.group(()=>{
+  Route.get('/profile', 'ProfilesController.index')
+  Route.put('/profile', 'ProfilesController.update')
+}).middleware('auth:api')
+
+
+
+/**
+ * Telegram users Route
+ */
 
 Route.group(()=>{
   Route.get('/create', 'TokensController.create').as('token.create')
   Route.get('/index', 'TokensController.index').as('token.index')
   Route.delete('/delete/:id', 'TokensController.delete').as('token.delete')
-}).prefix('token')
+}).prefix('token').middleware('auth:api')
+
+/**
+ * Devices Route
+ */
 
 Route.group(()=> {
   Route.resource('/device', 'DevicesController').apiOnly()
