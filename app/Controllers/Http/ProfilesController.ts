@@ -35,10 +35,15 @@ export default class ProfilesController {
       const profile = await Profile.findBy('user_id', auth.user?.id)
       if (!profile) return
 
-      const profile_image = request.file('profile_image')
+      const profile_image = request.file('profile_image', {
+        extnames: ['jpg','png'],
+        size: '2mb'
+      })
       const theme = request.input('theme')
 
       if (profile_image) {
+        if (!profile_image.isValid) return response.status(400).json({ code: 400, status: 'error', message: profile_image.errors })
+
         await profile_image.move(Application.tmpPath('uploads'), {
           name: `${profile.id}-${crypto.randomBytes(8).toString('hex')}.png`,
           overwrite: true
