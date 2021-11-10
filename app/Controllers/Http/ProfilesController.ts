@@ -1,6 +1,8 @@
+import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Profile from 'App/Models/Profile'
 import Users from 'App/Models/Users'
+import crypto from 'crypto'
 
 export default class ProfilesController {
   public async index({ auth, response }: HttpContextContract) {
@@ -27,12 +29,27 @@ export default class ProfilesController {
   public async edit({ }: HttpContextContract) {
   }
 
-  public async update({request, response, auth}: HttpContextContract) {
-    const input = request.only(['avatar_url','theme'])
+  public async update({ request, response, auth }: HttpContextContract) {
 
     try {
       const profile = await Profile.findBy('user_id', auth.user?.id)
-      profile?.merge(input)
+      if (!profile) return
+
+      const profile_image = request.file('profile_image')
+      const theme = request.input('theme')
+
+      if (profile_image) {
+        await profile_image.move(Application.tmpPath('uploads'), {
+          name: `${profile.id}-${crypto.randomBytes(8).toString('hex')}.png`,
+          overwrite: true
+        })
+        profile.avatar_url = profile_image.filePath
+      }
+
+      if (theme) {
+        profile.theme = request.input('theme')
+      }
+
       await profile?.save()
 
       return response.status(200).json({ code: 200, status: 'success', data: profile })

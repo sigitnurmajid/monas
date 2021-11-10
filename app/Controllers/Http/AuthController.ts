@@ -53,13 +53,15 @@ export default class AuthController {
 
     } catch (error) {
       if (error.code === 'E_INVALID_AUTH_UID') {
+        error.code = 400
         error.message = 'Email address not found'
       }
 
       if (error.code === 'E_INVALID_AUTH_PASSWORD') {
+        error.code = 400
         error.message ='Password mis-match'
       }
-      return response.status(500).json({ code: 500, status: 'error', message: error.message })
+      return response.status(error.code).json({ code: error.code, status: 'error', message: error.message })
 
     }
   }

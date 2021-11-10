@@ -36,28 +36,25 @@ Route.get('health', async ({ response }) => {
  * User Route
  */
 
-Route.group(()=>{
+Route.group(() => {
   Route.post('/register', 'AuthController.register').as('auth.signup')
   Route.post('/login', 'AuthController.login').as('auth.login')
-  Route.post('/logout', 'AuthController.logout').as('auth.logout').middleware('auth:api')
+  Route.get('/logout', 'AuthController.logout').as('auth.logout').middleware('auth:api')
   Route.post('/change-password', 'AuthController.changePassword').as('auth.password').middleware('auth:api')
-  Route.post('/reset-password', 'ForgotPasswordsController.store')
+  Route.post('/reset-password/email', 'ForgotPasswordsController.store')
   Route.get('/reset-password/:token/:email', 'ForgotPasswordsController.show')
   Route.post('/reset-password/reset', 'ForgotPasswordsController.edit')
-}).prefix('user')
-
-Route.group(()=>{
-  Route.get('/profile', 'ProfilesController.index')
-  Route.put('/profile', 'ProfilesController.update')
-}).middleware('auth:api')
-
-
+  Route.group(() => {
+    Route.get('/profile', 'ProfilesController.index')
+    Route.put('/profile', 'ProfilesController.update')
+  }).middleware('auth:api')
+}).prefix('api/user')
 
 /**
  * Telegram users Route
  */
 
-Route.group(()=>{
+Route.group(() => {
   Route.get('/create', 'TokensController.create').as('token.create')
   Route.get('/index', 'TokensController.index').as('token.index')
   Route.delete('/delete/:id', 'TokensController.delete').as('token.delete')
@@ -67,10 +64,10 @@ Route.group(()=>{
  * Devices Route
  */
 
-Route.group(()=> {
+Route.group(() => {
   Route.resource('/device', 'DevicesController').apiOnly()
   Route.resource('/threshold-device', 'ThresholdDevicesController').apiOnly()
-  Route.group(()=>{
+  Route.group(() => {
     Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
     Route.get('/pressure-volume/:id', 'PressureVolumeDevicesController.show')
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
@@ -82,8 +79,8 @@ Route.group(()=> {
 }).prefix('/api')
 
 
-Route.group(()=>{
-  Route.group(()=>{
+Route.group(() => {
+  Route.group(() => {
     Route.post('/device-location', 'DevicesLocationsController.create')
   }).prefix('/node-data')
 }).prefix('/api-v2')

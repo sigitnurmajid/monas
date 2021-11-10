@@ -37,8 +37,8 @@ export default class ForgotPasswordsController {
       await Mail.send((message) => {
         message
           .from('service.intellisense@gmail.com')
-          .to('sigitnurmajid32@gmail.com')
-          .subject('Welcome Onboard!')
+          .to(email)
+          .subject('Forgot Password Token')
           .text(token)
       })
 
