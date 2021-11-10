@@ -98,7 +98,7 @@ export default class AuthController {
         user.merge({ password: userDetails.password })
 
         await user?.save()
-        return response.status(200).json({ code: 200, status: 'reset password success' })
+        return response.status(200).json({ code: 200, status: 'success' })
 
       } else {
         throw new Error('password mis-match')
