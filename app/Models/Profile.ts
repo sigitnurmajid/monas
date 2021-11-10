@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
-import Users from './Users'
+import Users from './users'
 
 export default class Profile extends BaseModel {
   @column({ isPrimary: true , serializeAs: null})

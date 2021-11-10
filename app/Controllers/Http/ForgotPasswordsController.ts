@@ -1,7 +1,7 @@
 import Mail from '@ioc:Adonis/Addons/Mail';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import TokenUserPassword from 'App/Models/TokenUserPassword';
-import users from 'App/Models/Users'
+import users from 'App/Models/users'
 import crypto from 'crypto'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 

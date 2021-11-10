@@ -1,7 +1,7 @@
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Profile from 'App/Models/Profile'
-import Users from 'App/Models/Users'
+import Users from 'App/Models/users'
 import crypto from 'crypto'
 
 export default class ProfilesController {
