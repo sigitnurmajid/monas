@@ -81,21 +81,23 @@ export default class ForgotPasswordsController {
       ])
     })
 
-    const userDetails = await request.validate({
-      schema: validationSchema
-    })
-    const user = await users.findByOrFail('email', userDetails.email)
-    const token = await TokenUserPassword.findByOrFail('token', userDetails.token)
-
-    user.password = userDetails.password
-    token.is_used = true
-
     try {
+      const userDetails = await request.validate({
+        schema: validationSchema
+      })
+      const user = await users.findByOrFail('email', userDetails.email)
+      const token = await TokenUserPassword.findByOrFail('token', userDetails.token)
+
+      user.password = userDetails.password
+      token.is_used = true
+
       await token.save()
       await user.save()
       return response.status(200).json({ code: 200, status: 'success' })
 
     } catch (error) {
+      if (error.code === 'E_VALIDATION_FAILURE') return response.status(422).json({ code: 422, status: 'Unprocessable Entity', message: error.messages })
+
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
   }

@@ -18,21 +18,23 @@ export default class AuthController {
       ]),
     })
 
-    const userDetails = await request.validate({
-      schema: validationSchema
-    })
-
-    const user = new Users
-    const profile = new Profile
-
-    user.email = userDetails.email
-    user.password = userDetails.password
-    profile.full_name = userDetails.full_name
-
     try {
+      const userDetails = await request.validate({
+        schema: validationSchema
+      })
+
+      const user = new Users
+      const profile = new Profile
+
+      user.email = userDetails.email
+      user.password = userDetails.password
+      profile.full_name = userDetails.full_name
+
       await user.save() && await user.related('profile').save(profile)
       return response.status(200).json({ code: 200, status: 'success' })
     } catch (error) {
+      if (error.code === 'E_VALIDATION_FAILURE') return response.status(422).json({ code: 422, status: 'Unprocessable Entity', message: error.messages })
+
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
   }
@@ -49,7 +51,7 @@ export default class AuthController {
       const user = await users.findByOrFail('email', email)
       await user.load('profile')
 
-      return response.status(200).json({ code: 200, status: 'success', data: token, theme : user.profile.theme })
+      return response.status(200).json({ code: 200, status: 'success', data: token, theme: user.profile.theme })
 
     } catch (error) {
       if (error.code === 'E_INVALID_AUTH_UID') {
@@ -59,7 +61,7 @@ export default class AuthController {
 
       if (error.code === 'E_INVALID_AUTH_PASSWORD') {
         error.code = 400
-        error.message ='Password mis-match'
+        error.message = 'Password mis-match'
       }
       return response.status(error.code).json({ code: error.code, status: 'error', message: error.message })
 
