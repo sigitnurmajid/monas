@@ -3,6 +3,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Profile from 'App/Models/Profile'
 import Users from 'App/Models/users'
 import crypto from 'crypto'
+import Drive from '@ioc:Adonis/Core/Drive'
 
 export default class ProfilesController {
   public async index({ auth, response }: HttpContextContract) {
@@ -44,11 +45,15 @@ export default class ProfilesController {
       if (profile_image) {
         if (!profile_image.isValid) return response.status(400).json({ code: 400, status: 'error', message: profile_image.errors })
 
+        const fileName = `${profile.id}-${crypto.randomBytes(8).toString('hex')}.png`
         await profile_image.move(Application.tmpPath('uploads'), {
-          name: `${profile.id}-${crypto.randomBytes(8).toString('hex')}.png`,
+          name: fileName,
           overwrite: true
         })
-        profile.avatar_url = profile_image.filePath
+
+      const url = await Drive.getUrl(`${fileName}`)
+
+      profile.avatar_url = url
       }
 
       if (theme) {
