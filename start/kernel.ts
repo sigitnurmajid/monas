@@ -20,8 +20,9 @@ import Server from '@ioc:Adonis/Core/Server'
 | are defined for every HTTP requests.
 |
 */
+
 Server.middleware.register([
-  'Adonis/Core/BodyParserMiddleware',
+  () => import('@ioc:Adonis/Core/BodyParser'),
   // 'App/Middleware/SilentAuth'
 ])
 
