@@ -34,6 +34,18 @@ export default class DataCollectionDevice extends BaseModel {
   public memory_usage: number
 
   @column({})
+  public battery_voltage: number
+
+  @column({})
+  public battery_current: number
+
+  @column({})
+  public solar_voltage: number
+
+  @column({})
+  public solar_current: number
+
+  @column({})
   public time_device: DateTime
 
   @belongsTo(() => Device, {

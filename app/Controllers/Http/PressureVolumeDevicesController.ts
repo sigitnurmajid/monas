@@ -35,6 +35,10 @@ export default class PressureVolumeDevicesController {
     dataCollection.firmware_version = request.input('data.firmware_version')
     dataCollection.device_type = request.input('data.device_type')
     dataCollection.memory_usage = request.input('data.memory_usage')
+    dataCollection.battery_current = request.input('data.battery_current')
+    dataCollection.battery_current = request.input('data.battery_voltage')
+    dataCollection.solar_current = request.input('data.solar_current')
+    dataCollection.solar_voltage = request.input('data.solar_voltage')
     dataCollection.time_device = request.input('time_device')
 
 
