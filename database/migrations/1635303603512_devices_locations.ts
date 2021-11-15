@@ -9,7 +9,7 @@ export default class DevicesLocations extends BaseSchema {
       table.string('device_code').notNullable().references('devices.device_code')
       table.string('gps_status').notNullable()
       table.string('latitude').notNullable()
-      table.string('longtitude').notNullable()
+      table.string('longitude').notNullable()
       table.dateTime('time_device').notNullable()
       table.timestamps(true)
     })

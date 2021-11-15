@@ -12,7 +12,7 @@ export default class DevicesLocationsController {
     location.device_code = request.input('device_code')
     location.gps_status = request.input('data.gps_status')
     location.latitude = request.input('data.latitude')
-    location.longtitude = request.input('data.longtitude')
+    location.longitude = request.input('data.longitude')
     location.time_device = request.input('time_device')
 
     const device = await Device.findBy('device_code', location.device_code)

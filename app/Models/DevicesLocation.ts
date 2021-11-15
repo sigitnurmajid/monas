@@ -16,7 +16,7 @@ export default class DevicesLocation extends BaseModel {
   public latitude: string
 
   @column({})
-  public longtitude: string
+  public longitude: string
 
   @column({})
   public time_device: DateTime
