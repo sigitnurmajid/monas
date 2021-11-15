@@ -17,7 +17,7 @@ export default class DataCollectionDevices extends BaseSchema {
       table.float('memory_usage')
       table.float('battery_voltage')
       table.float('battery_current')
-      table.float('solar_volatage')
+      table.float('solar_voltage')
       table.float('solar_current')
       table.dateTime('time_device')
       table.timestamps(true)
