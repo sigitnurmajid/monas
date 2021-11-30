@@ -13,7 +13,7 @@ export default class Node {
 
   private maintenance: any
 
-  public async setTankProperties(threshold: { nodeId: string, up_limit: number, low_limit: number }) {
+  public setTankProperties(threshold: { nodeId: string, up_limit: number, low_limit: number }) {
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -23,13 +23,8 @@ export default class Node {
       args: `{"upperThresholdValue" : ${threshold.up_limit}, "lowerThresholdValue" : ${threshold.low_limit}}`
     })
 
-    let respond: any
+    return axios.post(`https://api.particle.io/v1/devices/${threshold.nodeId}/setTankProperties`, data, { headers: headers })
 
-    await axios.post(`https://api.particle.io/v1/devices/${threshold.nodeId}/setTankProperties`, data, { headers: headers })
-      .then((response) => { respond = response.statusText })
-      .catch(() => { throw Error('NODE_NOT_RESPOND') })
-
-    return respond
   }
 
   public async sendAlarmPressureTelegram(data: PressureVolumeDevice, forWho: string) {
