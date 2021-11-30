@@ -3,7 +3,7 @@ import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 export default class Devices extends BaseSchema {
   protected tableName = 'devices'
 
-  public async up () {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('device_name').notNullable()
@@ -14,11 +14,19 @@ export default class Devices extends BaseSchema {
       table.string('tank_type').notNullable()
       table.float('high_limit')
       table.float('low_limit')
+      table.integer('site_id')
+        .unsigned()
+        .references('sites.id')
+        .onDelete('CASCADE')
+        table.integer('organization_id')
+        .unsigned()
+        .references('organizations.id')
+        .onDelete('CASCADE')
       table.timestamps(true)
     })
   }
 
-  public async down () {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

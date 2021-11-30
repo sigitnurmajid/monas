@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, hasOne, HasMany, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasMany, hasOne, HasMany, HasOne, belongsTo, BelongsTo } from '@ioc:Adonis/Lucid/Orm'
 import ThresholdDevice from './ThresholdDevice'
 import PressureVolumeDevice from './PressureVolumeDevice'
 import VolumeRateDevice from './VolumeRateDevice'
@@ -7,6 +7,8 @@ import Filling from './Filling'
 import VolumeUsage from './VolumeUsage'
 import DevicesLocation from './DevicesLocation'
 import DataCollectionDevice from './DataCollectionDevice'
+import Site from './Site'
+import Organization from './Organization'
 
 
 export default class Device extends BaseModel {
@@ -36,6 +38,12 @@ export default class Device extends BaseModel {
 
   @column({})
   public low_limit: number
+
+  @column({})
+  public site_id: number
+
+  @column({})
+  public organization_id: number
 
   @hasOne(() => ThresholdDevice, {
     foreignKey: 'device_code',
@@ -78,6 +86,12 @@ export default class Device extends BaseModel {
     localKey: 'device_code'
   })
   public data_collection_device: HasMany<typeof DataCollectionDevice>
+
+  @hasOne(() => Site, ({localKey: 'site_id'}))
+  public site: HasOne<typeof Site>
+
+  @belongsTo(() => Organization, ({foreignKey: 'organization_id'}))
+  public organization: BelongsTo<typeof Organization>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
