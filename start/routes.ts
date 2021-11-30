@@ -30,7 +30,7 @@ Route.get('health', async ({ response }) => {
   return report.healthy
     ? response.ok(report)
     : response.badRequest(report)
-})
+}).middleware(['auth:api','rbac:admin,superadmin'])
 
 /**
  * User Route
@@ -50,6 +50,24 @@ Route.group(() => {
   }).middleware('auth:api')
 }).prefix('api/user')
 
+
+
+Route.resource('api/organization', 'OrganizationsController').middleware({
+  '*': ['auth:api'],
+  'store' : ['rbac:superadmin'],
+  'update' : ['rbac:superadmin'],
+  'destroy' : ['rbac:superadmin']
+}).apiOnly()
+
+Route.resource('api/site', 'SitesController').middleware({
+  '*': ['auth:api'],
+  'store' : ['rbac:superadmin,admin'],
+  'update' : ['rbac:superadmin,admin'],
+  'destroy' : ['rbac:superadmin,admin']
+}).apiOnly()
+
+
+Route.get('test', 'SitesController.test')
 /**
  * Telegram users Route
  */
