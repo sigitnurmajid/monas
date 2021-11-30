@@ -4,6 +4,7 @@ import Profile from 'App/Models/Profile'
 import Users from 'App/Models/users'
 import Hash from '@ioc:Adonis/Core/Hash'
 import users from 'App/Models/users'
+import UsersRole from 'App/Models/UsersRole'
 
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
@@ -16,6 +17,9 @@ export default class AuthController {
       password: schema.string({ trim: true }, [
         rules.confirmed(),
       ]),
+      role: schema.enum(
+        ['admin','user','superadmin'] as const
+      ),
     })
 
     try {
@@ -25,13 +29,23 @@ export default class AuthController {
 
       const user = new Users
       const profile = new Profile
+      const role = new UsersRole
 
       user.email = userDetails.email
       user.password = userDetails.password
       profile.full_name = userDetails.full_name
+      role.role = userDetails.role
+      user.organization_id = request.input('organization_id')
 
-      await user.save() && await user.related('profile').save(profile)
-      return response.status(200).json({ code: 200, status: 'success' })
+      await user.save()
+      await user.related('profile').save(profile)
+      await user.related('userRole').save(role)
+
+      const userResgitered = await Users.findByOrFail('email', user.email)
+
+      if(request.input('sites_id')) await userResgitered?.related('sites').attach(request.input('sites_id'))
+
+      return response.status(200).json({ code: 200, status: 'success' , role : role.role})
     } catch (error) {
       if (error.code === 'E_VALIDATION_FAILURE') return response.status(422).json({ code: 422, status: 'Unprocessable Entity', message: error.messages })
 
@@ -50,8 +64,9 @@ export default class AuthController {
 
       const user = await users.findByOrFail('email', email)
       await user.load('profile')
+      await user.load('userRole')
 
-      return response.status(200).json({ code: 200, status: 'success', data: token, theme: user.profile.theme })
+      return response.status(200).json({ code: 200, status: 'success', data: token, theme: user.profile.theme, role: user.userRole.role})
 
     } catch (error) {
       if (error.code === 'E_INVALID_AUTH_UID') {
