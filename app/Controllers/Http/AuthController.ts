@@ -27,6 +27,15 @@ export default class AuthController {
         schema: validationSchema
       })
 
+      if(userDetails.role === 'admin'){
+        if(!request.input('organization_id')) throw new Error('Please input organization_id for role admin')
+        if(request.input('sites_id')) throw new Error('Do not including sites_id for role admin')
+      } else if(userDetails.role === 'user'){
+        if(!request.input('organization_id') || !request.input('sites_id')) throw new Error('Please input organization_id & sites_id for role user')
+      } else {
+        if(request.input('organization_id') || request.input('sites_id')) throw new Error('Do not including organization_id & sites_id for role superadmin')
+      }
+
       const user = new Users
       const profile = new Profile
       const role = new UsersRole
