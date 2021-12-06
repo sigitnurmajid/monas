@@ -4,7 +4,7 @@ import Organization from 'App/Models/Organization';
 import Site from 'App/Models/Site';
 import ThresholdDevice from 'App/Models/ThresholdDevice'
 import { schema } from '@ioc:Adonis/Core/Validator'
-import Node from 'App/Services/Node'
+// import Node from 'App/Services/Node'
 
 export default class DevicesController {
   public async index({ response }: HttpContextContract) {
@@ -33,7 +33,7 @@ export default class DevicesController {
     })
 
     const device = new Device
-    const node = new Node
+    // const node = new Node
 
     try {
 
@@ -58,11 +58,11 @@ export default class DevicesController {
       threshold.hospital_high_threshold = 0
       threshold.hospital_low_threshold = 0
 
-      const setTankProperties = {
-        nodeId: deviceDetails.device_code,
-        up_limit: 0,
-        low_limit: 0
-      }
+      // const setTankProperties = {
+      //   nodeId: deviceDetails.device_code,
+      //   up_limit: 0,
+      //   low_limit: 0
+      // }
 
       const site = await Site.findOrFail(deviceDetails.site_id)
       await site.load('device')
