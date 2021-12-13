@@ -5,19 +5,19 @@ import users from './users'
 export default class UsersRole extends BaseModel {
   public static table = 'users_roles'
 
-  @column({ isPrimary: true })
+  @column({ isPrimary: true , serializeAs: null})
   public id: number
 
-  @column()
+  @column({ serializeAs: null })
   public user_id: number
 
   @column()
   public role: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ autoCreate: true , serializeAs: null})
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
   public updatedAt: DateTime
 
   @hasOne(() => users)

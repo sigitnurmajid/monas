@@ -9,7 +9,7 @@ export default class ProfilesController {
   public async index({ auth, response }: HttpContextContract) {
     try {
       const user = await Users.find(auth.user?.id)
-
+      await user?.load('userRole')
       await user?.load('profile')
 
       return response.status(200).json({ code: 200, status: 'success', data: user })
