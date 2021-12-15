@@ -39,10 +39,10 @@ export default class Device extends BaseModel {
   @column({})
   public low_limit: number
 
-  @column({})
+  @column({serializeAs : null})
   public site_id: number
 
-  @column({})
+  @column({serializeAs : null})
   public organization_id: number
 
   @hasOne(() => ThresholdDevice, {

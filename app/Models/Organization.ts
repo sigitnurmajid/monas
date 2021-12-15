@@ -5,12 +5,12 @@ import users from './users'
 import Device from './Device'
 
 export default class Organization extends BaseModel {
-  public serializeExtras = true
+  // public serializeExtras = true
 
   @column({ isPrimary: true })
   public id: number
 
-  @column()
+  @column({})
   public name: string
 
   @column()
