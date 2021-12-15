@@ -6,7 +6,7 @@ export default class SitesController {
   public async index({ response, request }: HttpContextContract) {
     try {
       const input = request.qs()
-      const sites = await Site.query().preload('organization').preload('device').where('organization_id', input.organization_id).paginate(input.page,10)
+      const sites = await Site.query().preload('organization').preload('device').where('organization_id', input.organization_id).orderBy('id','asc').paginate(input.page,10)
 
       if(sites.length === 0) throw new Error('Sites not found')
 

@@ -9,7 +9,7 @@ export default class OrganizationsController {
   public async index({ response, request }: HttpContextContract) {
     try {
       const input = request.qs()
-      const organizations = await Organization.query().withCount('sites').withCount('users').paginate(input.page,10)
+      const organizations = await Organization.query().withCount('sites').withCount('users').orderBy('id','asc').paginate(input.page,10)
 
       if (organizations.length === 0) throw new Error('Sites not found')
       return response.status(200).json({ code: 200, status: 'success', data: organizations })
@@ -67,9 +67,9 @@ export default class OrganizationsController {
   public async show({ params, response }: HttpContextContract) {
     try {
       const organization = await Organization.findOrFail(params.id)
-      await organization.loadCount('device').loadCount('sites')
       await organization.load('sites')
       await organization.load('device')
+
       return response.status(200).json({ code: 200, status: 'success', data: organization })
 
     } catch (error) {
@@ -111,6 +111,7 @@ export default class OrganizationsController {
       return response.status(200).json({ code: 200, status: 'success', data: organization })
 
     } catch (error) {
+      if (error.code === 'E_ROW_NOT_FOUND') error.message = 'Organization not found'
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
   }
