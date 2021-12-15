@@ -26,12 +26,15 @@ export default class AuthController {
       const userDetails = await request.validate({
         schema: validationSchema
       })
+      const sites_id = request.input('sites_id')
+
 
       if(userDetails.role === 'admin'){
         if(!request.input('organization_id')) throw new Error('Please input organization_id for role admin')
         if(request.input('sites_id')) throw new Error('Do not including sites_id for role admin')
       } else if(userDetails.role === 'user'){
         if(!request.input('organization_id') || !request.input('sites_id')) throw new Error('Please input organization_id & sites_id for role user')
+        if(!Array.isArray(sites_id)) throw new Error('sites_id must be array')
       } else {
         if(request.input('organization_id') || request.input('sites_id')) throw new Error('Do not including organization_id & sites_id for role superadmin')
       }
@@ -52,7 +55,7 @@ export default class AuthController {
 
       const userResgitered = await Users.findByOrFail('email', user.email)
 
-      if(request.input('sites_id')) await userResgitered?.related('sites').attach(request.input('sites_id'))
+      if(sites_id) await userResgitered?.related('sites').attach(request.input('sites_id'))
 
       return response.status(200).json({ code: 200, status: 'success' , role : role.role})
     } catch (error) {
