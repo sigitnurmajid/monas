@@ -5,6 +5,7 @@ import Users from 'App/Models/users'
 import Hash from '@ioc:Adonis/Core/Hash'
 import users from 'App/Models/users'
 import UsersRole from 'App/Models/UsersRole'
+import Organization from 'App/Models/Organization'
 
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
@@ -78,7 +79,21 @@ export default class AuthController {
       await user.load('profile')
       await user.load('userRole')
 
-      return response.status(200).json({ code: 200, status: 'success', data: token, theme: user.profile.theme, role: user.userRole.role})
+
+      const responseSuccessPayload = {
+        code : 200,
+        status : 'success',
+        data: token,
+        theme: user.profile.theme,
+        role: user.userRole.role
+      }
+
+      if (user.userRole.role === 'superadmin'){
+        const organization_id = await Organization.query().select('id')
+        responseSuccessPayload['default_organization'] = organization_id[0]
+      }
+
+      return response.status(200).json(responseSuccessPayload)
 
     } catch (error) {
       if (error.code === 'E_INVALID_AUTH_UID') {
