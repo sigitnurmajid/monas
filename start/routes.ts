@@ -102,6 +102,6 @@ Route.group(() => {
 Route.group(() => {
   Route.group(() => {
     Route.post('/device-location', 'DevicesLocationsController.create')
-    Route.get('/device-location', 'DevicesLocationsController.show')
+    Route.get('/device-location', 'DevicesLocationsController.show').middleware('auth:api')
   }).prefix('/node-data')
-}).prefix('/api-v2').middleware('auth:api')
+}).prefix('/api-v2')
