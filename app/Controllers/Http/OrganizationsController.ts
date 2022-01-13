@@ -127,4 +127,13 @@ export default class OrganizationsController {
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
   }
+
+  public async shows({ response }: HttpContextContract) {
+    try {
+      const organizationLists = await Organization.query().select('id','name', 'avatar_url')
+      return response.status(200).json({ code: 200, status: 'success', data: organizationLists })
+    } catch (error) {
+      return response.status(500).json({ code: 500, status: 'error', message: error.message })
+    }
+  }
 }
