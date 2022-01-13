@@ -58,6 +58,7 @@ Route.resource('api/organization', 'OrganizationsController').middleware({
   'update' : ['rbac:superadmin'],
   'destroy' : ['rbac:superadmin']
 }).apiOnly()
+Route.get('api/list-organizations', 'OrganizationsController.shows').middleware(['auth:api','rbac:superadmin'])
 
 Route.resource('api/site', 'SitesController').middleware({
   '*': ['auth:api'],
@@ -88,6 +89,7 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
     Route.get('/pressure-volume/', 'PressureVolumeDevicesController.show').middleware('auth:api')
+    Route.get('/pressure-volume/:device_code', 'PressureVolumeDevicesController.details').middleware('auth:api')
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
     Route.post('/filling', 'FillingsController.create')
     Route.get('/filling/:id', 'FillingsController.show')
@@ -100,5 +102,6 @@ Route.group(() => {
 Route.group(() => {
   Route.group(() => {
     Route.post('/device-location', 'DevicesLocationsController.create')
+    Route.get('/device-location', 'DevicesLocationsController.show')
   }).prefix('/node-data')
-}).prefix('/api-v2')
+}).prefix('/api-v2').middleware('auth:api')
