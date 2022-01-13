@@ -6,6 +6,7 @@ import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
 import users from 'App/Models/users'
+import VolumeRateDevice from 'App/Models/VolumeRateDevice'
 import Node from 'App/Services/Node'
 import { query } from './RawQuery/PressureVolumeRaw'
 import VolumeRateDevicesController from './VolumeRateDevicesController'
@@ -95,7 +96,7 @@ export default class PressureVolumeDevicesController {
       async function data() {
         if (user.userRole.role === 'superadmin') {
           const organization_id = request.qs().organization_id
-          if(!organization_id) throw new Error('Insert organization_id for superadmin role')
+          if (!organization_id) throw new Error('Insert organization_id for superadmin role')
 
           const deviceByOrganization = await Device.query().where('organization_id', organization_id)
           const devicesEntity = deviceByOrganization.map(x => `\'${x.device_code}\'`).join(',')
@@ -116,7 +117,7 @@ export default class PressureVolumeDevicesController {
       }
       const resultData = await data()
 
-      return response.status(200).json({ code: 200, status: 'success' , data : resultData.rows})
+      return response.status(200).json({ code: 200, status: 'success', data: resultData.rows })
     } catch (error) {
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
@@ -130,5 +131,38 @@ export default class PressureVolumeDevicesController {
   }
 
   public async destroy({ }: HttpContextContract) {
+  }
+
+  public async details({ request, response }: HttpContextContract) {
+    try {
+      const parameter = request.qs()
+      const deviceCode = request.param('device_code')
+
+      const dataPressureVolume = await PressureVolumeDevice
+        .query()
+        .select('pressure_value', 'volume_value', 'time_device')
+        .where('device_code', '=', deviceCode)
+        .andWhere('time_device', '>', parameter.start_date)
+        .andWhere('time_device', '<', parameter.end_date)
+
+      const dataVolumeRate = await VolumeRateDevice
+        .query()
+        .select('volume_rate_value', 'time_device')
+        .where('device_code', '=', deviceCode)
+        .andWhere('time_device', '>',parameter.start_date)
+        .andWhere('time_device', '<',parameter.end_date)
+
+      return response.status(200).json({
+        code: 200, status: 'success', data:
+        {
+          pressure_volume_value: dataPressureVolume,
+          volume_rate_value: dataVolumeRate
+        }
+      })
+
+    } catch (error) {
+      return response.status(500).json({ code: 500, status: 'error', message: error.message })
+    }
+
   }
 }
