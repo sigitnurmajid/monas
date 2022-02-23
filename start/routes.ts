@@ -89,7 +89,8 @@ Route.group(() => {
   Route.group(() => {
     Route.post('/pressure-volume', 'PressureVolumeDevicesController.create')
     Route.get('/pressure-volume/', 'PressureVolumeDevicesController.show').middleware('auth:api')
-    Route.get('/pressure-volume/:device_code', 'PressureVolumeDevicesController.details').middleware('auth:api')
+    Route.get('/pressure-volume/:device_code', 'PressureVolumeDevicesController.graph').middleware('auth:api')
+    Route.get('/pressure-volume/details/:device_code', 'PressureVolumeDevicesController.details').middleware('auth:api')
     Route.get('/volume-rate/:id', 'VolumeRateDevicesController.show')
     Route.post('/filling', 'FillingsController.create')
     Route.get('/filling/:id', 'FillingsController.show')

@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import DataCollectionDevice from 'App/Models/DataCollectionDevice'
 import Device from 'App/Models/Device'
+import Filling from 'App/Models/Filling'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
@@ -133,7 +134,7 @@ export default class PressureVolumeDevicesController {
   public async destroy({ }: HttpContextContract) {
   }
 
-  public async details({ request, response }: HttpContextContract) {
+  public async graph({ request, response }: HttpContextContract) {
     try {
       const parameter = request.qs()
       const deviceCode = request.param('device_code')
@@ -149,8 +150,8 @@ export default class PressureVolumeDevicesController {
         .query()
         .select('volume_rate_value', 'time_device')
         .where('device_code', '=', deviceCode)
-        .andWhere('time_device', '>',parameter.start_date)
-        .andWhere('time_device', '<',parameter.end_date)
+        .andWhere('time_device', '>', parameter.start_date)
+        .andWhere('time_device', '<', parameter.end_date)
 
       return response.status(200).json({
         code: 200, status: 'success', data:
@@ -163,6 +164,31 @@ export default class PressureVolumeDevicesController {
     } catch (error) {
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
+  }
 
+  public async details({ request, response }: HttpContextContract) {
+    try {
+      const deviceCode = request.param('device_code')
+      const deviceDetailData = await Database.rawQuery(query(`'${deviceCode}'`))
+      const lastFillingData = await Filling
+        .query()
+        .where('device_code', deviceCode)
+        .andWhere('filling_state', 'STARTED')
+        .orWhere('filling_state', 'FINISHED')
+        .orderBy('created_at', 'desc')
+        .limit(2)
+
+      return response.status(200).json({
+        code: 200, status: 'success', data:
+        {
+          device_detail_data: deviceDetailData.rows,
+          last_filling_data: lastFillingData,
+          total_daily_usage: {volume_usage : 0, weight_used: 0},
+          total_monthly_usage: {volume_usage : 0, weight_used: 0}
+        }
+      })
+    } catch (error) {
+      return response.status(500).json({ code: 500, status: 'error', message: error.message })
+    }
   }
 }
