@@ -2,14 +2,15 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import DataCollectionDevice from 'App/Models/DataCollectionDevice'
 import Device from 'App/Models/Device'
-import Filling from 'App/Models/Filling'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
 import users from 'App/Models/users'
 import VolumeRateDevice from 'App/Models/VolumeRateDevice'
 import Node from 'App/Services/Node'
+import { queryGetLastFillingData } from './RawQuery/Filling'
 import { query } from './RawQuery/PressureVolumeRaw'
+import { queryGetTotalWeightThisDay , queryGetTotalWeightThisMonth } from './RawQuery/VolumeUsage'
 import VolumeRateDevicesController from './VolumeRateDevicesController'
 import VolumeUsagesController from './VolumeUsagesController'
 
@@ -145,6 +146,7 @@ export default class PressureVolumeDevicesController {
         .where('device_code', '=', deviceCode)
         .andWhere('time_device', '>', parameter.start_date)
         .andWhere('time_device', '<', parameter.end_date)
+        .orderBy('time_device', 'desc')
 
       const dataVolumeRate = await VolumeRateDevice
         .query()
@@ -152,6 +154,7 @@ export default class PressureVolumeDevicesController {
         .where('device_code', '=', deviceCode)
         .andWhere('time_device', '>', parameter.start_date)
         .andWhere('time_device', '<', parameter.end_date)
+        .orderBy('time_device', 'desc')
 
       return response.status(200).json({
         code: 200, status: 'success', data:
@@ -169,22 +172,20 @@ export default class PressureVolumeDevicesController {
   public async details({ request, response }: HttpContextContract) {
     try {
       const deviceCode = request.param('device_code')
+      const timeZone = request.qs().time_zone
       const deviceDetailData = await Database.rawQuery(query(`'${deviceCode}'`))
-      const lastFillingData = await Filling
-        .query()
-        .where('device_code', deviceCode)
-        .andWhere('filling_state', 'STARTED')
-        .orWhere('filling_state', 'FINISHED')
-        .orderBy('created_at', 'desc')
-        .limit(2)
+      const lastFillingData = await Database.rawQuery(queryGetLastFillingData(), {device_code : deviceCode})
+      const totalDailyUsage = await Database.rawQuery(queryGetTotalWeightThisDay(timeZone), {deviceCode : deviceCode})
+      const totalMonthlyUsage = await Database.rawQuery(queryGetTotalWeightThisMonth(timeZone), {deviceCode : deviceCode})
+
 
       return response.status(200).json({
         code: 200, status: 'success', data:
         {
-          device_detail_data: deviceDetailData.rows,
-          last_filling_data: lastFillingData,
-          total_daily_usage: {volume_usage : 0, weight_used: 0},
-          total_monthly_usage: {volume_usage : 0, weight_used: 0}
+          device_detail_data: deviceDetailData.rows[0],
+          last_filling_data: lastFillingData.rows[0],
+          total_daily_usage: totalDailyUsage.rows[0],
+          total_monthly_usage: totalMonthlyUsage.rows[0]
         }
       })
     } catch (error) {
