@@ -1,19 +1,11 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Device from 'App/Models/Device'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
 import Node from 'App/Services/Node'
 
 export default class ThresholdDevicesController {
-  public async index({ response }: HttpContextContract) {
-    const data = await Database
-      .from('threshold_devices')
-      .join('devices', 'devices.device_code', '=', 'threshold_devices.device_code')
-      .select('threshold_devices.*')
-      .select('devices.device_name')
-      .orderBy('created_at')
-      .catch(() => { return response.status(400).send({ error: true, message: 'Error while querying' }) })
-    return data
+  public async index({ }: HttpContextContract) {
+
   }
 
   public async create({ }: HttpContextContract) {
@@ -22,38 +14,26 @@ export default class ThresholdDevicesController {
   public async store({ }: HttpContextContract) {
   }
 
-  public async show({ }: HttpContextContract) {
-    /*
-
-    THIS CODE NOT USE FOR A WHILE
-
+  public async show({ request, response }: HttpContextContract) {
     try {
-      const device = await Database
-        .from('threshold_devices')
-        .join('devices', 'devices.device_code', '=', 'threshold_devices.device_code')
-        .select('threshold_devices.*')
-        .select('devices.device_name')
-        .where('threshold_devices.id', params.id)
-        .orderBy('created_at')
-      if (device) {
-        return device[0]
-      } else {
-        return response.status(400)
-      }
+      const deviceCode = request.param('id')
+      const data = await ThresholdDevice.findByOrFail('device_code', deviceCode)
+
+      return response.status(200).json({ code: 200, status: 'success', data: data })
     } catch (error) {
-      return response.status(400)
+      return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
-
-
-    */
   }
 
   public async edit({ }: HttpContextContract) {
   }
 
-  public async update({ request, params, response }: HttpContextContract) {
+  public async update({ request , response }: HttpContextContract) {
+
+    const deviceCode = request.param('id')
     const node = new Node
-    const data = await ThresholdDevice.find(params.id);
+    const data = await ThresholdDevice.findByOrFail('device_code', deviceCode)
+
     if (data) {
       // data.up_limit = request.input('device_code')
       data.high_threshold = request.input('up_limit')
@@ -67,31 +47,23 @@ export default class ThresholdDevicesController {
         low_limit: data.low_threshold
       }
 
-      const device = await Device.findBy('device_code', data.device_code)
+      try {
+        const device = await Device.findBy('device_code', data.device_code)
+        if(!device) return response.status(500).send({ error: true, message: 'Id cannot found' })
 
-      if (device) {
-        await node.setTankProperties(setTankProperties)
-          .then(async (respond: any) => {
-            if (respond.response == '0') return response.status(400).send({ error: true, message: 'Device did not respond' })
-            await device.related('threshold_device').save(data).catch(() => {
-              return response.status(400).send({ error: true, message: 'Failed save data threshold' })
-            })
-            return response.status(200).send({ error: false, message: 'Operation success' })
-          })
-          .catch((e) => {
-            if (e.message == 'NODE_NOT_RESPOND') {
-              return response.status(400).send({ error: true, message: 'Device did not respond' })
-            }
-          })
-      } else {
-        return response.status(400).send({ error: true, message: 'Relation not ok' })
+        const nodeResponse = await node.setTankProperties(setTankProperties)
+        if (nodeResponse.data.response == '0') return response.status(500).send({ error: true, message: 'Device did not respond' })
+
+        await device.related('threshold_device').save(data)
+        return response.status(200).send({ error: false, message: 'Operation success' })
+      } catch (error) {
+        return response.status(500).json({ code: 500, status: 'error', message: error })
       }
-    } else {
-      return response.status(400).send({ error: true, message: 'Id cannot found' })
     }
   }
 
-  public async destroy({ params, response }: HttpContextContract) {
+  public async destroy({ }: HttpContextContract) {
+    /*
     const device = await ThresholdDevice.query().where('id', params.id).delete()
 
     if (device) {
@@ -99,5 +71,6 @@ export default class ThresholdDevicesController {
     } else {
       return response.status(400).send({ error: true, message: 'Error while deleting data' })
     }
+    */
   }
 }
