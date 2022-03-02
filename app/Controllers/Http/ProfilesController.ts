@@ -16,14 +16,16 @@ export default class ProfilesController {
       const responseSuccessPayload = {
         code : 200,
         status : 'success',
-        data: user
+        data: {
+          user : user
+        }
       }
 
       if(user?.userRole.role == 'user'){
         await user?.load('sites')
         const site = await Site.findOrFail(user.sites[0].id)
         await site.load('device')
-        responseSuccessPayload['device_code'] = site.device.device_code
+        responseSuccessPayload.data['device_code'] = site.device.device_code
       }
 
       return response.status(200).json(responseSuccessPayload)

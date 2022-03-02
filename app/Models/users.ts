@@ -51,7 +51,7 @@ export default class users extends BaseModel {
   @hasOne(() => UsersRole, {foreignKey : 'user_id'})
   public userRole: HasOne<typeof UsersRole>
 
-  @manyToMany(() => Site)
+  @manyToMany(() => Site, {serializeAs:null})
   public sites: ManyToMany<typeof Site>
 
   @belongsTo(()=> Organization, ({foreignKey: 'organization_id'}))
