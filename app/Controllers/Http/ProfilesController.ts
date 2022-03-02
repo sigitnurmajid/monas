@@ -4,6 +4,7 @@ import Profile from 'App/Models/Profile'
 import Users from 'App/Models/users'
 import crypto from 'crypto'
 import Drive from '@ioc:Adonis/Core/Drive'
+import Site from 'App/Models/Site'
 
 export default class ProfilesController {
   public async index({ auth, response }: HttpContextContract) {
@@ -12,7 +13,20 @@ export default class ProfilesController {
       await user?.load('userRole')
       await user?.load('profile')
 
-      return response.status(200).json({ code: 200, status: 'success', data: user })
+      const responseSuccessPayload = {
+        code : 200,
+        status : 'success',
+        data: user
+      }
+
+      if(user?.userRole.role == 'user'){
+        await user?.load('sites')
+        const site = await Site.findOrFail(user.sites[0].id)
+        await site.load('device')
+        responseSuccessPayload['device_code'] = site.device.device_code
+      }
+
+      return response.status(200).json(responseSuccessPayload)
     } catch (error) {
       return response.status(500).json({ code: 500, status: 'error', message: error.message })
     }
