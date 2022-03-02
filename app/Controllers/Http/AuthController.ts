@@ -6,6 +6,7 @@ import Hash from '@ioc:Adonis/Core/Hash'
 import users from 'App/Models/users'
 import UsersRole from 'App/Models/UsersRole'
 import Organization from 'App/Models/Organization'
+import Site from 'App/Models/Site'
 
 export default class AuthController {
   public async register({ request, response }: HttpContextContract) {
@@ -78,6 +79,7 @@ export default class AuthController {
       const user = await users.findByOrFail('email', email)
       await user.load('profile')
       await user.load('userRole')
+      await user.load('sites')
 
 
       const responseSuccessPayload = {
@@ -91,6 +93,12 @@ export default class AuthController {
       if (user.userRole.role === 'superadmin'){
         const organization_id = await Organization.query().select('id')
         responseSuccessPayload['default_organization'] = organization_id[0]
+      }
+
+      if (user.userRole.role === 'user'){
+        const site = await Site.findOrFail(user.sites[0].id)
+        await site.load('device')
+        responseSuccessPayload['device_code'] = site.device.device_code
       }
 
       return response.status(200).json(responseSuccessPayload)
