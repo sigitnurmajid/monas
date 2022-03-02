@@ -182,10 +182,10 @@ export default class PressureVolumeDevicesController {
       return response.status(200).json({
         code: 200, status: 'success', data:
         {
-          device_detail_data: deviceDetailData.rows[0],
-          last_filling_data: lastFillingData.rows[0],
-          total_daily_usage: totalDailyUsage.rows[0],
-          total_monthly_usage: totalMonthlyUsage.rows[0]
+          device_detail_data: deviceDetailData.rows[0] || null,
+          last_filling_data: lastFillingData.rows[0] || null,
+          total_daily_usage: totalDailyUsage.rows[0] || null,
+          total_monthly_usage: totalMonthlyUsage.rows[0] || null
         }
       })
     } catch (error) {
