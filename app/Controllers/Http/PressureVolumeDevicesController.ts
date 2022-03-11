@@ -2,15 +2,16 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database'
 import DataCollectionDevice from 'App/Models/DataCollectionDevice'
 import Device from 'App/Models/Device'
+import Filling from 'App/Models/Filling'
 import PressureVolumeDevice from 'App/Models/PressureVolumeDevice'
 import StatusMasterDatum from 'App/Models/StatusMasterDatum'
 import ThresholdDevice from 'App/Models/ThresholdDevice'
 import users from 'App/Models/users'
 import VolumeRateDevice from 'App/Models/VolumeRateDevice'
 import Node from 'App/Services/Node'
-import { queryGetLastFillingData } from './RawQuery/Filling'
+import { queryGetLastFillingData, queryGetFillingData, queryGetFillingFrequency } from './RawQuery/Filling'
 import { query } from './RawQuery/PressureVolumeRaw'
-import { queryGetTotalWeightThisDay , queryGetTotalWeightThisMonth } from './RawQuery/VolumeUsage'
+import { queryGetTotalWeightperDay, queryGetTotalWeightThisDay , queryGetTotalWeightThisMonth, queryGetTotalWeightperMonth } from './RawQuery/VolumeUsage'
 import VolumeRateDevicesController from './VolumeRateDevicesController'
 import VolumeUsagesController from './VolumeUsagesController'
 
@@ -186,6 +187,58 @@ export default class PressureVolumeDevicesController {
           last_filling_data: lastFillingData.rows[0] || null,
           total_daily_usage: totalDailyUsage.rows[0] || null,
           total_monthly_usage: totalMonthlyUsage.rows[0] || null
+        }
+      })
+    } catch (error) {
+      return response.status(500).json({ code: 500, status: 'error', message: error.message })
+    }
+  }
+
+  public async report({ request, response }: HttpContextContract){
+    try {
+      const parameter = request.qs()
+      const deviceCode = request.param('device_code')
+
+      const totalDailyUsage = await Database.rawQuery(queryGetTotalWeightperDay(parameter.time_zone), {
+        deviceCode : deviceCode,
+        startDate : parameter.start_date,
+        endDate : parameter.end_date
+      })
+
+      const totalMonthlyUsage = await Database.rawQuery(queryGetTotalWeightperMonth(parameter.time_zone), {
+        deviceCode : deviceCode,
+        startDate : parameter.start_date,
+        endDate : parameter.end_date
+      })
+
+      const fillingReport = await Database.rawQuery(queryGetFillingData(), {
+        deviceCode : deviceCode,
+        startDate : parameter.start_date,
+        endDate : parameter.end_date
+      })
+
+      const fillingFrequency = await Database.rawQuery(queryGetFillingFrequency(parameter.time_zone), {
+        deviceCode : deviceCode,
+        startDate : parameter.start_date,
+        endDate : parameter.end_date
+      })
+
+      const fillingHistogram = await Filling
+        .query()
+        .select('created_at').as('time')
+        .select('pressure_value')
+        .whereBetween('created_at', [parameter.start_date, parameter.end_date])
+        .andWhere('filling_state', 'FINISHED')
+        .andWhere('device_code', deviceCode)
+
+      return response.status(200).json({
+        code: 200, status: 'success', data:
+        {
+          total_daily_usage: totalDailyUsage.rows,
+          total_monthly_usage: totalMonthlyUsage.rows,
+          filling_report: fillingReport.rows,
+          filling_frequency : fillingFrequency.rows,
+          filling_histogram : fillingHistogram
         }
       })
     } catch (error) {

@@ -33,7 +33,7 @@ export default class Filling extends BaseModel {
   })
   public device: BelongsTo<typeof Device>
 
-  @column.dateTime({ autoCreate: true , serializeAs: null})
+  @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
