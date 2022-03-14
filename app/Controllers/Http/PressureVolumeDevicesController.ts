@@ -223,6 +223,8 @@ export default class PressureVolumeDevicesController {
         endDate : parameter.end_date
       })
 
+      const { location } = await Device.findByOrFail('device_code', deviceCode)
+
       const fillingHistogram = await Filling
         .query()
         .select('created_at').as('time')
@@ -238,7 +240,8 @@ export default class PressureVolumeDevicesController {
           total_monthly_usage: totalMonthlyUsage.rows,
           filling_report: fillingReport.rows,
           filling_frequency : fillingFrequency.rows,
-          filling_histogram : fillingHistogram
+          filling_histogram : fillingHistogram,
+          location : location
         }
       })
     } catch (error) {
